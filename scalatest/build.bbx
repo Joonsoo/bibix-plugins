@@ -7,8 +7,8 @@ import maven
 impl = ktjvm.library(
   deps = [
     bibix.base(),
-    maven.dep("org.jetbrains.kotlin", "kotlin-stdlib-jdk8", "1.6.20"),
-    maven.dep("org.scalatest", "scalatest_2.13", "3.2.11"),
+    maven.artifact("org.jetbrains.kotlin", "kotlin-stdlib-jdk8", "1.6.20"),
+    maven.artifact("org.scalatest", "scalatest_2.13", "3.2.11"),
     cputils.lib,
   ],
   srcs = glob("src/**/*.kt"),
@@ -18,3 +18,4 @@ action def run(
   deps: set<jvm.ClassPkg>,
   targetClasses: set<string> = [],
 ) = impl:com.giyeok.bibix.plugins.scalatest.Run
+
