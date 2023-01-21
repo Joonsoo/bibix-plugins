@@ -78,7 +78,7 @@ public class Library {
                 "jvm.resolveClassPkgs",
                 Map.of("classPkgs", deps),
                 (classPaths) -> {
-                    SetValue cps = (SetValue) ((DataClassInstanceValue) classPaths).get("cps");
+                    SetValue cps = (SetValue) ((ClassInstanceValue) classPaths).get("cps");
                     try {
                         return BuildRuleReturn.value(runCompiler(cps, deps, context, optIns));
                     } catch (Exception e) {
