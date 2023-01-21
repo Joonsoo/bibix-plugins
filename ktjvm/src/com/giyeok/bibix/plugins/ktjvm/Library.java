@@ -57,12 +57,12 @@ public class Library {
         // ClassPkg = (origin: ClassOrigin, cpinfo: CpInfo, deps: set<ClassPkg>)
         // CpInfo = {JarInfo, ClassesInfo}
         // ClassesInfo = (classDirs: set<directory>, resDirs: set<directory>, srcs: {set<file>, none})
-        return new NDataClassInstanceValue("jvm.ClassPkg", Map.of(
-                "origin", new NDataClassInstanceValue("jvm.LocalBuilt", Map.of(
+        return new NClassInstanceValue("jvm.ClassPkg", Map.of(
+                "origin", new NClassInstanceValue("jvm.LocalBuilt", Map.of(
                         "objHash", new StringValue(context.getObjectIdHash()),
                         "builderName", new StringValue("ktjvm.library")
                 )),
-                "cpinfo", new NDataClassInstanceValue("jvm.ClassesInfo", Map.of(
+                "cpinfo", new NClassInstanceValue("jvm.ClassesInfo", Map.of(
                         "classDirs", new SetValue(new DirectoryValue(destDirectory)),
                         "resDirs", new SetValue(),
                         "srcs", srcs
