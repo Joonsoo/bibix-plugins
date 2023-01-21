@@ -10,7 +10,7 @@ impl = java.library(
   deps = [
     maven.artifact("org.jetbrains.kotlin", "kotlin-compiler", compilerVersion),
     // jvm.lib("../../bibix-core/build/classes/kotlin/main"),
-    bibix.base(),
+    bibix.base,
   ],
   srcs = glob("src/**/*.java"),
 )
