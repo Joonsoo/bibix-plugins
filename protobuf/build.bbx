@@ -32,7 +32,7 @@ impl = ktjvm.library(
   srcs = (implTemplate as list<file>) + glob("src/**/*.kt"),
   deps = [
     bibix.base(),
-    maven.dep("org.jetbrains.kotlin", "kotlin-stdlib-jdk8", "1.6.20"),
+    maven.artifact("org.jetbrains.kotlin", "kotlin-stdlib-jdk8", "1.6.20"),
   ],
 )
 
