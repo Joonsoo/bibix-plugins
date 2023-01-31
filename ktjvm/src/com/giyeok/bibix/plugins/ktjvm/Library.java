@@ -73,14 +73,16 @@ public class Library {
 
     public BuildRuleReturn build(BuildContext context) throws IOException {
         SetValue deps = (SetValue) context.getArguments().get("deps");
-        ListValue optIns = (ListValue) context.getArguments().get("optIns");
+        BibixValue optIns = (BibixValue) context.getArguments().get("optIns");
+        ListValue optInsList = (optIns instanceof NoneValue)? null:((ListValue) optIns);
+
         return BuildRuleReturn.evalAndThen(
                 "jvm.resolveClassPkgs",
                 Map.of("classPkgs", deps),
                 (classPaths) -> {
                     SetValue cps = (SetValue) ((ClassInstanceValue) classPaths).get("cps");
                     try {
-                        return BuildRuleReturn.value(runCompiler(cps, deps, context, optIns));
+                        return BuildRuleReturn.value(runCompiler(cps, deps, context, optInsList));
                     } catch (Exception e) {
                         return BuildRuleReturn.failed(e);
                     }
