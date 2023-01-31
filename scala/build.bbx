@@ -8,7 +8,7 @@ var outVersion: string = "16"
 impl = ktjvm.library(
   deps = [
     bibix.base,
-    maven.artifact("org.jetbrains.kotlin", "kotlin-stdlib", "1.8.10"),
+    maven.artifact("org.jetbrains.kotlin", "kotlin-stdlib", "1.8.0"),
     maven.artifact("org.scala-lang", "scala-compiler", compilerVersion),
   ],
   srcs = glob("src/**/*.kt"),
