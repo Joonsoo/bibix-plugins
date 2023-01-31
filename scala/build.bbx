@@ -2,13 +2,13 @@ import jvm
 import maven
 from bibix.plugins import ktjvm
 
-var compilerVersion: string = "2.13.8"
+var compilerVersion: string = "2.13.10"
 var outVersion: string = "16"
 
 impl = ktjvm.library(
   deps = [
     bibix.base,
-    maven.artifact("org.jetbrains.kotlin", "kotlin-stdlib-jdk8", "1.6.20"),
+    maven.artifact("org.jetbrains.kotlin", "kotlin-stdlib", "1.8.10"),
     maven.artifact("org.scala-lang", "scala-compiler", compilerVersion),
   ],
   srcs = glob("src/**/*.kt"),
