@@ -1,0 +1,23 @@
+import jvm
+
+var srcVersion: string = "16"
+var outVersion: string = "16"
+
+def library(
+  srcs: set<file>,
+  deps: set<jvm.ClassPkg> = [],
+  compilerPath: string = "javac",
+  srcVersion: string = srcVersion,
+  outVersion: string = outVersion,
+): jvm.ClassPkg = native:com.giyeok.bibix.plugins.java.Library
+
+action def test(
+  srcs: set<file>,
+  deps: set<jvm.ClassPkg> = [],
+) = native:com.giyeok.bibix.plugins.java.Test
+
+action def execute(
+  deps: set<jvm.ClassPkg>,
+  mainClass: string,
+) = native:com.giyeok.bibix.plugins.java.Execute
+
