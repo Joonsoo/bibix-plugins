@@ -1,11 +1,7 @@
 package com.giyeok.bibix.plugins.java
 
 import com.giyeok.bibix.base.*
-import com.giyeok.bibix.plugins.ClassPkg
-import com.giyeok.bibix.plugins.ClassesInfo
-import com.giyeok.bibix.plugins.LocalBuilt
 import java.nio.file.Path
-import kotlin.io.path.absolutePathString
 
 class Library {
   private fun built(objectIdHash: String, dest: Path, deps: List<ClassPkg>): BuildRuleReturn =
@@ -16,7 +12,9 @@ class Library {
         deps,
       ).toBibix()
     )
-
+  
+  inline fun Path.absolutePathString() = toAbsolutePath().toString()
+  
   fun build(context: BuildContext): BuildRuleReturn {
     val depsValue = context.arguments.getValue("deps") as SetValue
     val deps = depsValue.values.map { ClassPkg.fromBibix(it) }
@@ -60,3 +58,4 @@ class Library {
     TODO()
   }
 }
+
