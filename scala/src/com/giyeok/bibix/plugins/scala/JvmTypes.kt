@@ -110,7 +110,7 @@ data class ClassesInfo(
       return ClassesInfo(
         classDirs = (value["classDirs"]!! as SetValue).values.map { (it as DirectoryValue).directory },
         resDirs = (value["resDirs"]!! as SetValue).values.map { (it as DirectoryValue).directory },
-        srcs = value["srcs"].nullOr { (it as SetValue).values.map { (it as FileValue).file } },
+        srcs = value["srcs"]!!.nullOr { (it as SetValue).values.map { (it as FileValue).file } },
       )
     }
   }
