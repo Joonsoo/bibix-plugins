@@ -95,6 +95,9 @@ data class JarInfo(
   )
 }
 
+fun <T> BibixValue.nullOr(func: (BibixValue) -> T): T? =
+  if (this == NoneValue) null else func(this)
+
 data class ClassesInfo(
   val classDirs: List<Path>,
   val resDirs: List<Path>,
@@ -107,7 +110,7 @@ data class ClassesInfo(
       return ClassesInfo(
         classDirs = (value["classDirs"]!! as SetValue).values.map { (it as DirectoryValue).directory },
         resDirs = (value["resDirs"]!! as SetValue).values.map { (it as DirectoryValue).directory },
-        srcs = value["srcs"]?.let { (it as SetValue).values.map { (it as FileValue).file } },
+        srcs = value["srcs"].nullOr { (it as SetValue).values.map { (it as FileValue).file } },
       )
     }
   }
