@@ -88,13 +88,14 @@ public class Library {
                 (sdkClassPkg) -> {
                     List<BibixValue> newDeps = new ArrayList<>(deps.getValues());
                     newDeps.add(sdkClassPkg);
+                    SetValue newDepsValue = new SetValue(newDeps);
                     return BuildRuleReturn.evalAndThen(
                             "jvm.resolveClassPkgs",
-                            Map.of("classPkgs", new SetValue(newDeps)),
+                            Map.of("classPkgs", newDepsValue),
                             (classPaths) -> {
                                 SetValue cps = (SetValue) ((ClassInstanceValue) classPaths).get("cps");
                                 try {
-                                    return BuildRuleReturn.value(runCompiler(cps, deps, context, optIns));
+                                    return BuildRuleReturn.value(runCompiler(cps, newDepsValue, context, optIns));
                                 } catch (Exception e) {
                                     return BuildRuleReturn.failed(e);
                                 }

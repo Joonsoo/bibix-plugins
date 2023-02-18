@@ -46,16 +46,6 @@ class Library {
     val resources = resourcesValue.values.map { (it as FileValue).file }
     val sdkVersion = context.arguments.getValue("sdkVersion") as StringValue
 
-    if (!context.hashChanged) {
-      return BuildRuleReturn.value(
-        ClassPkg(
-          LocalBuilt(context.objectIdHash, "scala.library"),
-          ClassesInfo(listOf(context.destDirectory), listOf(), srcs),
-          deps.values.map { ClassPkg.fromBibix(it) }
-        ).toBibix()
-      )
-    }
-
     check(srcs.isNotEmpty()) { "srcs must not be empty" }
     return BuildRuleReturn.evalAndThen(
       "maven.artifact",
@@ -65,43 +55,54 @@ class Library {
         "version" to sdkVersion
       )
     ) { sdkClassPkg ->
-      BuildRuleReturn.evalAndThen(
-        "jvm.resolveClassPkgs",
-        mapOf("classPkgs" to SetValue(deps.values + sdkClassPkg))
-      ) { classPaths ->
-        val settings = Settings()
-        val cps = ClassPaths.fromBibix(classPaths)
-        cps.cps.forEach { cpPath ->
-          settings.classpath().append(cpPath.absolutePathString())
-        }
-        settings.outputDirs().setSingleOutput(context.destDirectory.absolutePathString())
-        // settings.usejavacp().`value_$eq`(true)
-
-        val global = Global(settings)
-        val run = global.Run()
-        val srcPaths = srcs.map { it.absolutePathString() }
-        val srcScala = `CollectionConverters$`.`MODULE$`.ListHasAsScala(srcPaths).asScala().toList()
-        run.compile(srcScala)
-
-        // 컴파일 실패시 예외 발생
-        if (global.reporter().hasErrors()) {
-          throw IllegalStateException(
-            "${global.reporter().errorCount()} errors reported from scala compiler"
-          )
-        }
-
-        val resDirs = findResourceDirectoriesOf(resources)
-        if (resDirs.any { !it.isDirectory() }) {
-          throw IllegalStateException("Not implemented yet(Currently, the directories containing resource files must not contain non-resource files)")
-        }
-
+      val newDeps = deps.values + sdkClassPkg
+      if (!context.hashChanged) {
         BuildRuleReturn.value(
           ClassPkg(
             LocalBuilt(context.objectIdHash, "scala.library"),
-            ClassesInfo(listOf(context.destDirectory), resDirs.toList(), srcs),
-            deps.values.map { ClassPkg.fromBibix(it) }
+            ClassesInfo(listOf(context.destDirectory), listOf(), srcs),
+            newDeps.map { ClassPkg.fromBibix(it) }
           ).toBibix()
         )
+      } else {
+        BuildRuleReturn.evalAndThen(
+          "jvm.resolveClassPkgs",
+          mapOf("classPkgs" to SetValue(newDeps))
+        ) { classPaths ->
+          val settings = Settings()
+          val cps = ClassPaths.fromBibix(classPaths)
+          cps.cps.forEach { cpPath ->
+            settings.classpath().append(cpPath.absolutePathString())
+          }
+          settings.outputDirs().setSingleOutput(context.destDirectory.absolutePathString())
+          // settings.usejavacp().`value_$eq`(true)
+
+          val global = Global(settings)
+          val run = global.Run()
+          val srcPaths = srcs.map { it.absolutePathString() }
+          val srcScala = `CollectionConverters$`.`MODULE$`.ListHasAsScala(srcPaths).asScala().toList()
+          run.compile(srcScala)
+
+          // 컴파일 실패시 예외 발생
+          if (global.reporter().hasErrors()) {
+            throw IllegalStateException(
+              "${global.reporter().errorCount()} errors reported from scala compiler"
+            )
+          }
+
+          val resDirs = findResourceDirectoriesOf(resources)
+          if (resDirs.any { !it.isDirectory() }) {
+            throw IllegalStateException("Not implemented yet(Currently, the directories containing resource files must not contain non-resource files)")
+          }
+
+          BuildRuleReturn.value(
+            ClassPkg(
+              LocalBuilt(context.objectIdHash, "scala.library"),
+              ClassesInfo(listOf(context.destDirectory), resDirs.toList(), srcs),
+              newDeps.map { ClassPkg.fromBibix(it) }
+            ).toBibix()
+          )
+        }
       }
     }
   }
