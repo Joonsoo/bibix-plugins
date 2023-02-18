@@ -74,7 +74,8 @@ public class Library {
 
     public BuildRuleReturn build(BuildContext context) throws IOException {
         SetValue deps = (SetValue) context.getArguments().get("deps");
-        ListValue optIns = (ListValue) context.getArguments().get("optIns");
+        BibixValue optInsValue = (BibixValue) context.getArguments().get("optIns");
+        ListValue optIns = (optInsValue instanceof NoneValue)? null : (ListValue) optInsValue;
         StringValue sdkVersion = (StringValue) context.getArguments().get("sdkVersion");
 
         return BuildRuleReturn.evalAndThen(
