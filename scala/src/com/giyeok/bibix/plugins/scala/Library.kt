@@ -26,11 +26,14 @@ class Library {
       val path = mutPaths.first()
       val directory = path.parent
       val dirFiles = allFilesOf(directory)
-      if (mutPaths.containsAll(dirFiles)) {
+      if (paths.containsAll(dirFiles)) {
         resDirs.removeIf { it.startsWith(directory) }
         resDirs.add(directory)
         mutPaths.removeAll(dirFiles)
+      } else {
+        resDirs.add(path)
       }
+      mutPaths.remove(path)
     }
     return resDirs
   }
