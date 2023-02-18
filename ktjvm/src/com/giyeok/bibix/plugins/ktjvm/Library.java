@@ -8,6 +8,7 @@ import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -73,20 +74,32 @@ public class Library {
 
     public BuildRuleReturn build(BuildContext context) throws IOException {
         SetValue deps = (SetValue) context.getArguments().get("deps");
-        BibixValue optIns = (BibixValue) context.getArguments().get("optIns");
-        ListValue optInsList = (optIns instanceof NoneValue)? null:((ListValue) optIns);
+        ListValue optIns = (ListValue) context.getArguments().get("optIns");
+        StringValue sdkVersion = (StringValue) context.getArguments().get("sdkVersion");
 
         return BuildRuleReturn.evalAndThen(
-                "jvm.resolveClassPkgs",
-                Map.of("classPkgs", deps),
-                (classPaths) -> {
-                    SetValue cps = (SetValue) ((ClassInstanceValue) classPaths).get("cps");
-                    try {
-                        return BuildRuleReturn.value(runCompiler(cps, deps, context, optInsList));
-                    } catch (Exception e) {
-                        return BuildRuleReturn.failed(e);
-                    }
-                });
+                "maven.artifact",
+                Map.of(
+                        "group", new StringValue("org.jetbrains.kotlin"),
+                        "artifact", new StringValue("kotlin-stdlib"),
+                        "version", sdkVersion
+                ),
+                (sdkClassPkg) -> {
+                    List<BibixValue> newDeps = new ArrayList<>(deps.getValues());
+                    newDeps.add(sdkClassPkg);
+                    return BuildRuleReturn.evalAndThen(
+                            "jvm.resolveClassPkgs",
+                            Map.of("classPkgs", new SetValue(newDeps)),
+                            (classPaths) -> {
+                                SetValue cps = (SetValue) ((ClassInstanceValue) classPaths).get("cps");
+                                try {
+                                    return BuildRuleReturn.value(runCompiler(cps, deps, context, optIns));
+                                } catch (Exception e) {
+                                    return BuildRuleReturn.failed(e);
+                                }
+                            });
+                }
+        );
     }
 
     public void run(ActionContext context) {
