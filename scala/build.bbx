@@ -16,6 +16,7 @@ impl = ktjvm.library(
 
 def library(
   srcs: set<file>,
+  resources: set<file> = [],
   deps: set<jvm.ClassPkg> = [],
   outVersion: string = outVersion,
 ): jvm.ClassPkg = impl:com.giyeok.bibix.plugins.scala.Library

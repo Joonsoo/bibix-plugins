@@ -4,13 +4,43 @@ import com.giyeok.bibix.base.*
 import scala.jdk.`CollectionConverters$`
 import scala.tools.nsc.Global
 import scala.tools.nsc.Settings
+import java.nio.file.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.isDirectory
+import kotlin.io.path.listDirectoryEntries
 
 class Library {
+  fun allFilesOf(directory: Path): Set<Path> =
+    directory.listDirectoryEntries().flatMap { sub ->
+      if (sub.isDirectory()) {
+        allFilesOf(sub)
+      } else {
+        listOf(sub)
+      }
+    }.toSet()
+
+  fun findResourceDirectoriesOf(paths: Collection<Path>): Set<Path> {
+    val mutPaths = paths.toMutableSet()
+    val resDirs = mutableSetOf<Path>()
+    while (mutPaths.isNotEmpty()) {
+      val path = mutPaths.first()
+      val directory = path.parent
+      val dirFiles = allFilesOf(directory)
+      if (mutPaths.containsAll(dirFiles)) {
+        resDirs.removeIf { it.startsWith(directory) }
+        resDirs.add(directory)
+        mutPaths.removeAll(dirFiles)
+      }
+    }
+    return resDirs
+  }
+
   fun build(context: BuildContext): BuildRuleReturn {
     val deps = context.arguments.getValue("deps") as SetValue
     val srcsValue = context.arguments.getValue("srcs") as SetValue
     val srcs = srcsValue.values.map { (it as FileValue).file }
+    val resourcesValue = context.arguments.getValue("resources") as SetValue
+    val resources = resourcesValue.values.map { (it as FileValue).file }
 
     if (!context.hashChanged) {
       return BuildRuleReturn.value(
@@ -48,10 +78,15 @@ class Library {
         )
       }
 
+      val resDirs = findResourceDirectoriesOf(resources)
+      if (resDirs.any { !it.isDirectory() }) {
+        throw IllegalStateException("Not implemented yet(Currently, the directories containing resource files must not contain non-resource files)")
+      }
+
       BuildRuleReturn.value(
         ClassPkg(
           LocalBuilt(context.objectIdHash, "scala.library"),
-          ClassesInfo(listOf(context.destDirectory), listOf(), srcs),
+          ClassesInfo(listOf(context.destDirectory), resDirs.toList(), srcs),
           deps.values.map { ClassPkg.fromBibix(it) }
         ).toBibix()
       )
