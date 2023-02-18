@@ -2,13 +2,13 @@ import jvm
 import maven
 from bibix.plugins import java
 
-var compilerVersion: string = "1.8.0"
+var compilerVersion: string = "1.8.10"
+var sdkVersion: string = "1.8.10"
 var outVersion: string = "16"
 
 impl = java.library(
   deps = [
     maven.artifact("org.jetbrains.kotlin", "kotlin-compiler", compilerVersion),
-    // jvm.lib("../../bibix-core/build/classes/kotlin/main"),
     bibix.base,
   ],
   srcs = glob("src/**/*.java"),
@@ -17,7 +17,8 @@ impl = java.library(
 def library(
   srcs: set<file>,
   deps: set<jvm.ClassPkg> = [],
+  compilerVersion: string = compilerVersion,
+  sdkVersion: string = sdkVersion,
   outVersion: string = outVersion,
   optIns?: list<string>,
 ): jvm.ClassPkg = impl:com.giyeok.bibix.plugins.ktjvm.Library
-

@@ -44,6 +44,7 @@ class Library {
     val srcs = srcsValue.values.map { (it as FileValue).file }
     val resourcesValue = context.arguments.getValue("resources") as SetValue
     val resources = resourcesValue.values.map { (it as FileValue).file }
+    val sdkVersion = (context.arguments.getValue("sdkVersion") as StringValue).value
 
     if (!context.hashChanged) {
       return BuildRuleReturn.value(
