@@ -23,7 +23,7 @@ impl = ktjvm.library(
   ],
 )
 
-namespace javaPlugin {
+javaPlugin {
   def url(
     version: string,
     os: OS = env.os,
@@ -43,7 +43,7 @@ def java(
   os: OS = env.os,
 ): set<file> = impl:com.giyeok.bibix.plugins.grpc.Compile:java
 
-namespace kotlinPlugin {
+kotlinPlugin {
   def url(version: string): string =
     impl:com.giyeok.bibix.plugins.grpc.KotlinPlugin:url
 
