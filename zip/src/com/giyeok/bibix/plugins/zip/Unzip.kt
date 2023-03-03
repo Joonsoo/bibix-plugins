@@ -4,7 +4,7 @@ import com.giyeok.bibix.base.BuildContext
 import com.giyeok.bibix.base.DirectoryValue
 import com.giyeok.bibix.base.FileValue
 import java.util.zip.ZipInputStream
-import kotlin.io.path.createDirectory
+import kotlin.io.path.createDirectories
 import kotlin.io.path.inputStream
 import kotlin.io.path.notExists
 import kotlin.io.path.outputStream
@@ -21,9 +21,13 @@ class Unzip {
           val entryPath = destDirectory.resolve(entry.name)
           if (entry.isDirectory) {
             if (entryPath.notExists()) {
-              entryPath.createDirectory()
+              entryPath.createDirectories()
             }
           } else {
+            val directory = entryPath.parent
+            if (directory.notExists()) {
+              directory.createDirectories()
+            }
             entryPath.outputStream().buffered().use { output ->
               val buffer = ByteArray(1000)
               var count: Int

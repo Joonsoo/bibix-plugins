@@ -1,11 +1,11 @@
 package com.giyeok.bibix.plugins.protobuf
 
 import com.giyeok.bibix.base.*
-import com.giyeok.bibix.plugins.protobuf.Compile.ProtoSchema
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.PosixFilePermission
 import kotlin.io.path.*
+import com.giyeok.bibix.base.OS
 
 class CompileImpl : CompileInterface {
   override fun schema(
@@ -26,7 +26,6 @@ class CompileImpl : CompileInterface {
 
   private fun callCompiler(context: BuildContext, outArgs: List<String>) {
     // TODO Skip compiling if !hashChanged
-    val os = (context.arguments.getValue("os") as EnumValue).value
     val protocPath = (context.arguments.getValue("protocPath") as DirectoryValue).directory
 
     val schema = ProtoSchema.fromBibix(context.arguments.getValue("schema"))
@@ -39,7 +38,7 @@ class CompileImpl : CompileInterface {
     val protoPaths = srcs.map { it.parent }.toSet() + includes
     protoPaths.forEach { srcArgs.add("-I${it.absolutePathString()}") }
 
-    val executableName = if (os == "windows") "protoc.exe" else "protoc"
+    val executableName = if (context.buildEnv.os is OS.Windows) "protoc.exe" else "protoc"
     val executableFile = protocPath.resolve("bin").resolve(executableName)
 
     val prevPermissions = executableFile.getPosixFilePermissions()
@@ -59,7 +58,6 @@ class CompileImpl : CompileInterface {
   override fun protoset(
     context: BuildContext,
     schema: ProtoSchema,
-    os: Compile.OS,
     protocPath: Path,
     outputFileName: String?
   ): BuildRuleReturn {
@@ -75,7 +73,6 @@ class CompileImpl : CompileInterface {
   override fun cpp(
     context: BuildContext,
     schema: ProtoSchema,
-    os: Compile.OS,
     protocPath: Path
   ): BuildRuleReturn {
     TODO("Not yet implemented")
@@ -84,7 +81,6 @@ class CompileImpl : CompileInterface {
   override fun csharp(
     context: BuildContext,
     schema: ProtoSchema,
-    os: Compile.OS,
     protocPath: Path
   ): BuildRuleReturn {
     TODO("Not yet implemented")
@@ -100,7 +96,6 @@ class CompileImpl : CompileInterface {
   override fun java(
     context: BuildContext,
     schema: ProtoSchema,
-    os: Compile.OS,
     protocPath: Path
   ): BuildRuleReturn {
     val destDirectory = context.destDirectory
@@ -113,7 +108,6 @@ class CompileImpl : CompileInterface {
   override fun javascript(
     context: BuildContext,
     schema: ProtoSchema,
-    os: Compile.OS,
     protocPath: Path
   ): BuildRuleReturn {
     val destDirectory = context.destDirectory
@@ -126,7 +120,6 @@ class CompileImpl : CompileInterface {
   override fun kotlin(
     context: BuildContext,
     schema: ProtoSchema,
-    os: Compile.OS,
     protocPath: Path
   ): BuildRuleReturn {
     val destDirectory = context.destDirectory
@@ -139,7 +132,6 @@ class CompileImpl : CompileInterface {
   override fun objc(
     context: BuildContext,
     schema: ProtoSchema,
-    os: Compile.OS,
     protocPath: Path
   ): BuildRuleReturn {
     TODO("Not yet implemented")
@@ -148,7 +140,6 @@ class CompileImpl : CompileInterface {
   override fun php(
     context: BuildContext,
     schema: ProtoSchema,
-    os: Compile.OS,
     protocPath: Path
   ): BuildRuleReturn {
     TODO("Not yet implemented")
@@ -157,7 +148,6 @@ class CompileImpl : CompileInterface {
   override fun python(
     context: BuildContext,
     schema: ProtoSchema,
-    os: Compile.OS,
     protocPath: Path
   ): BuildRuleReturn {
     TODO("Not yet implemented")
@@ -166,7 +156,6 @@ class CompileImpl : CompileInterface {
   override fun ruby(
     context: BuildContext,
     schema: ProtoSchema,
-    os: Compile.OS,
     protocPath: Path
   ): BuildRuleReturn {
     TODO("Not yet implemented")
@@ -175,7 +164,6 @@ class CompileImpl : CompileInterface {
   override fun dart(
     context: BuildContext,
     schema: ProtoSchema,
-    os: Compile.OS,
     protocPath: Path
   ): BuildRuleReturn {
     TODO("Not yet implemented")
