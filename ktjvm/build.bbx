@@ -16,6 +16,7 @@ impl = java.library(
 
 def library(
   srcs: set<file>,
+  resources: set<file> = [],
   deps: set<jvm.ClassPkg> = [],
   compilerVersion: string = compilerVersion,
   sdkVersion: string = sdkVersion,
