@@ -59,7 +59,7 @@ class Library {
       if (!context.hashChanged) {
         BuildRuleReturn.value(
           ClassPkg(
-            LocalBuilt(context.objectIdHash, "scala.library"),
+            LocalBuilt(context.targetId, "scala.library"),
             ClassesInfo(listOf(context.destDirectory), listOf(), srcs),
             newDeps.map { ClassPkg.fromBibix(it) }
           ).toBibix()
@@ -97,7 +97,7 @@ class Library {
 
           BuildRuleReturn.value(
             ClassPkg(
-              LocalBuilt(context.objectIdHash, "scala.library"),
+              LocalBuilt(context.targetId, "scala.library"),
               ClassesInfo(listOf(context.destDirectory), resDirs.toList(), srcs),
               newDeps.map { ClassPkg.fromBibix(it) }
             ).toBibix()
