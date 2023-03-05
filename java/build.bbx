@@ -11,6 +11,8 @@ prepareBibixBase = bibix.base
 // bibix-java-plugin.jar must be compiled manually
 impl = jvm.lib("build/bibix-java-plugin.jar", deps=[bibix.base])
 
+implJar = jvm.jar([impl])
+
 def library(
   srcs: set<file>,
   deps: set<jvm.ClassPkg> = [],
