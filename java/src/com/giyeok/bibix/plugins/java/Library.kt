@@ -13,7 +13,7 @@ class Library {
       ).toBibix()
     )
   
-  inline fun Path.absolutePathString() = toAbsolutePath().toString()
+  fun Path.absolutePathString() = toAbsolutePath().toString()
   
   fun build(context: BuildContext): BuildRuleReturn {
     val depsValue = context.arguments.getValue("deps") as SetValue
@@ -42,6 +42,8 @@ class Library {
       args.add("-d")
       args.add(dest.absolutePathString())
       args.addAll(srcs.map { it.absolutePathString() })
+
+      println("java args: $args")
 
       val process = Runtime.getRuntime().exec(args.toTypedArray())
       println(String(process.errorStream.readAllBytes()))
