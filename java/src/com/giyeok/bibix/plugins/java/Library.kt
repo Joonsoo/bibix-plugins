@@ -4,10 +4,10 @@ import com.giyeok.bibix.base.*
 import java.nio.file.Path
 
 class Library {
-  private fun built(objectIdHash: String, dest: Path, deps: List<ClassPkg>): BuildRuleReturn =
+  private fun built(targetId: String, dest: Path, deps: List<ClassPkg>): BuildRuleReturn =
     BuildRuleReturn.value(
       ClassPkg(
-        LocalBuilt(objectIdHash, "java.library"),
+        LocalBuilt(targetId, "java.library"),
         ClassesInfo(listOf(dest), listOf(), null),
         deps,
       ).toBibix()
@@ -21,7 +21,7 @@ class Library {
     val dest = context.destDirectory
 
     if (!context.hashChanged) {
-      return built(context.objectIdHash, dest, deps)
+      return built(context.targetId, dest, deps)
     }
 
     return BuildRuleReturn.evalAndThen(
@@ -50,7 +50,7 @@ class Library {
       check(process.exitValue() == 0)
 
       // ClassPkg = (origin: ClassOrigin, cps: set<path>, deps: set<ClassPkg>)
-      built(context.objectIdHash, dest, deps)
+      built(context.targetId, dest, deps)
     }
   }
 
