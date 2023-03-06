@@ -1,0 +1,34 @@
+import jvm
+import bibix
+import maven
+
+var jdkVersion: string = "16"
+var srcVersion: string = "16"
+var outVersion: string = "16"
+
+prepareBibixBase = bibix.base
+
+// bibix-java-plugin.jar must be compiled manually
+impl = jvm.lib("build/bibix-java-plugin.jar", deps=[bibix.base])
+
+implJar = jvm.jar([impl])
+
+def library(
+  srcs: set<file>,
+  deps: set<jvm.ClassPkg> = [],
+  compilerPath: string = "javac",
+  jdkVersion: string = jdkVersion,
+  srcVersion: string = srcVersion,
+  outVersion: string = outVersion,
+): jvm.ClassPkg = impl:com.giyeok.bibix.plugins.java.Library
+
+action def test(
+  srcs: set<file>,
+  deps: set<jvm.ClassPkg> = [],
+) = impl:com.giyeok.bibix.plugins.java.Test
+
+action def execute(
+  deps: set<jvm.ClassPkg>,
+  mainClass: string,
+) = impl:com.giyeok.bibix.plugins.java.Execute
+
