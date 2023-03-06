@@ -46,12 +46,7 @@ public class Library {
         return resDirs;
     }
 
-    private BibixValue runCompiler(
-        SetValue classPaths,
-        SetValue deps,
-        BuildContext context,
-        ListValue optIns
-    ) throws IOException {
+    private BibixValue runCompiler(SetValue classPaths, SetValue deps, BuildContext context, ListValue optIns) throws IOException {
         Path destDirectory = context.getDestDirectory();
 
         SetValue srcs = (SetValue) context.getArguments().get("srcs");
@@ -137,12 +132,11 @@ public class Library {
                     SetValue newDepsValue = new SetValue(newDeps);
                     return BuildRuleReturn.evalAndThen(
                             "jvm.resolveClassPkgs",
-                            Map.of("classPkgs", deps),
+                            Map.of("classPkgs", newDepsValue),
                             (classPaths) -> {
-                                SetValue cps = (SetValu) ((ClassInstnaceValue) classPaths).get("cps");
+                                SetValue cps = (SetValue) ((ClassInstanceValue) classPaths).get("cps");
                                 try {
-                                    return BuildRuleReturn.value(
-                                        runCompiler(cps, newDepsValue, context, optIns));
+                                    return BuildRuleReturn.value(runCompiler(cps, newDepsValue, context, optIns));
                                 } catch (Exception e) {
                                     return BuildRuleReturn.failed(e);
                                 }
