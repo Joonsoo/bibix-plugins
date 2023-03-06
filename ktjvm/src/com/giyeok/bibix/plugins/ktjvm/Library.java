@@ -151,7 +151,8 @@ public class Library {
                                     Map.of("classPkgs", newRuntimeDepsValue),
                                     (runtimeClassPaths) -> {
                                         try {
-                                            return BuildRuleReturn.value(runCompiler(classPaths, runtimeClassPaths, deps, newRuntimeDepsValue, context, optIns));
+                                            return BuildRuleReturn.value(
+                                                runCompiler((SetValue) classPaths, (SetValue) runtimeClassPaths, deps, newRuntimeDepsValue, context, optIns));
                                         } catch (Exception e) {
                                             return BuildRuleReturn.failed(e);
                                         }
