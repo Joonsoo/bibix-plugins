@@ -86,11 +86,11 @@ class CompileImpl : CompileInterface {
     TODO("Not yet implemented")
   }
 
-  private fun getFiles(directory: Path): SetValue {
+  private fun getFiles(directory: Path): List<Path> {
     val files = Files.walk(directory, 1000).toList()
       .filter { it.isRegularFile() }
       .map { FileValue(it) }
-    return SetValue(files)
+    return files
   }
 
   override fun java(
@@ -102,7 +102,7 @@ class CompileImpl : CompileInterface {
     if (context.hashChanged) {
       callCompiler(context, listOf("--java_out=${destDirectory.absolutePathString()}"))
     }
-    return BuildRuleReturn.value(GeneratedSrcsSet(destDirectory, getFiles(destDirectory)))
+    return BuildRuleReturn.value(GeneratedSrcsSet(destDirectory, getFiles(destDirectory)).toBibix())
   }
 
   override fun javascript(
@@ -114,7 +114,7 @@ class CompileImpl : CompileInterface {
     if (context.hashChanged) {
       callCompiler(context, listOf("--js_out=${destDirectory.absolutePathString()}"))
     }
-    return BuildRuleReturn.value(getFiles(destDirectory))
+    return BuildRuleReturn.value(GeneratedSrcsSet(destDirectory, getFiles(destDirectory)).toBibix())
   }
 
   override fun kotlin(
@@ -126,7 +126,7 @@ class CompileImpl : CompileInterface {
     if (context.hashChanged) {
       callCompiler(context, listOf("--kotlin_out=${destDirectory.absolutePathString()}"))
     }
-    return BuildRuleReturn.value(GeneratedSrcsSet(destDirectory, getFiles(destDirectory)))
+    return BuildRuleReturn.value(GeneratedSrcsSet(destDirectory, getFiles(destDirectory)).toBibix())
   }
 
   override fun objc(
