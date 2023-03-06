@@ -50,6 +50,7 @@ public class Library {
         SetValue classPaths,
         SetValue runtimeClassPaths,
         SetValue deps,
+        SetValue runtimeDeps,
         BuildContext context,
         ListValue optIns
     ) throws IOException {
@@ -118,7 +119,8 @@ public class Library {
                         "resDirs", new SetValue(resDirs.stream().map(PathValue::new).collect(Collectors.toList())),
                         "srcs", srcs
                 )),
-                "deps", deps
+                "deps", deps,
+                "runtimeDeps", runtimeDeps
         ));
     }
 
@@ -149,7 +151,7 @@ public class Library {
                                     Map.of("classPkgs", newRuntimeDepsValue),
                                     (runtimeClassPaths) -> {
                                         try {
-                                            return BuildRuleReturn.value(runCompiler(classPaths, runtimeClassPaths, newDepsValue, context, optIns));
+                                            return BuildRuleReturn.value(runCompiler(classPaths, runtimeClassPaths, deps, newRuntimeDepsValue, context, optIns));
                                         } catch (Exception e) {
                                             return BuildRuleReturn.failed(e);
                                         }
