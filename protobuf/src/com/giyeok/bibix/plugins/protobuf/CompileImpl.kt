@@ -89,7 +89,6 @@ class CompileImpl : CompileInterface {
   private fun getFiles(directory: Path): List<Path> {
     val files = Files.walk(directory, 1000).toList()
       .filter { it.isRegularFile() }
-      .map { FileValue(it) }
     return files
   }
 
