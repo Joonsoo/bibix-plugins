@@ -114,7 +114,7 @@ public class Library {
                         "resDirs", new SetValue(resDirs.stream().map(PathValue::new).collect(Collectors.toList())),
                         "srcs", srcs
                 )),
-                "deps", deps,
+                "deps", deps
         ));
     }
 
