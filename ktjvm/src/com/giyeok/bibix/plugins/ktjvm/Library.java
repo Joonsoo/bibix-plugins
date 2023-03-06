@@ -48,9 +48,7 @@ public class Library {
 
     private BibixValue runCompiler(
         SetValue classPaths,
-        SetValue runtimeClassPaths,
         SetValue deps,
-        SetValue runtimeDeps,
         BuildContext context,
         ListValue optIns
     ) throws IOException {
@@ -69,14 +67,11 @@ public class Library {
 
         if (context.getHashChanged()) {
             ArrayList<String> args = new ArrayList<>();
-            if (!classPaths.getValues().isEmpty() || !runtimeClassPaths.getValues().isEmpty()) {
+            if (!classPaths.getValues().isEmpty()) {
                 ArrayList<Path> cps = new ArrayList<>();
                 args.add("-cp");
                 // System.out.println(deps);
                 classPaths.getValues().forEach(v -> {
-                    cps.add(((PathValue) v).getPath());
-                });
-                runtimeClassPaths.getValues().forEach(v -> {
                     cps.add(((PathValue) v).getPath());
                 });
                 args.add(cps.stream().map(Path::toAbsolutePath).map(Path::toString).collect(Collectors.joining(":")));
@@ -120,13 +115,11 @@ public class Library {
                         "srcs", srcs
                 )),
                 "deps", deps,
-                "runtimeDeps", runtimeDeps
         ));
     }
 
     public BuildRuleReturn build(BuildContext context) throws IOException {
         SetValue deps = (SetValue) context.getArguments().get("deps");
-        SetValue runtimeDeps = (SetValue) context.getArguments().get("runtimeDeps");
         BibixValue optInsValue = (BibixValue) context.getArguments().get("optIns");
         ListValue optIns = (optInsValue instanceof NoneValue) ? null : (ListValue) optInsValue;
         StringValue sdkVersion = (StringValue) context.getArguments().get("sdkVersion");
@@ -139,24 +132,20 @@ public class Library {
                         "version", sdkVersion
                 ),
                 (sdkClassPkg) -> {
-                    List<BibixValue> newRuntimeDeps = new ArrayList<>(runtimeDeps.getValues());
-                    newRuntimeDeps.add(sdkClassPkg);
-                    SetValue newRuntimeDepsValue = new SetValue(newRuntimeDeps);
+                    List<BibixValue> newDeps = new ArrayList<>(deps.getValues());
+                    newDeps.add(sdkClassPkg);
+                    SetValue newDepsValue = new SetValue(newDeps);
                     return BuildRuleReturn.evalAndThen(
                             "jvm.resolveClassPkgs",
                             Map.of("classPkgs", deps),
                             (classPaths) -> {
-                                return BuildRuleReturn.evalAndThen(
-                                    "jvm.resolveClassPkgs",
-                                    Map.of("classPkgs", newRuntimeDepsValue),
-                                    (runtimeClassPaths) -> {
-                                        try {
-                                            return BuildRuleReturn.value(
-                                                runCompiler((SetValue) classPaths, (SetValue) runtimeClassPaths, deps, newRuntimeDepsValue, context, optIns));
-                                        } catch (Exception e) {
-                                            return BuildRuleReturn.failed(e);
-                                        }
-                                    });
+                                SetValue cps = (SetValu) ((ClassInstnaceValue) classPaths).get("cps");
+                                try {
+                                    return BuildRuleReturn.value(
+                                        runCompiler(cps, newDepsValue, context, optIns));
+                                } catch (Exception e) {
+                                    return BuildRuleReturn.failed(e);
+                                }
                             });
                 }
         );

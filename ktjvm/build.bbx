@@ -7,18 +7,17 @@ var sdkVersion: string = "1.8.10"
 var outVersion: string = "16"
 
 impl = java.library(
-  runtimeDeps = [
+  srcs = glob("src/**/*.java"),
+  deps = [
     maven.artifact("org.jetbrains.kotlin", "kotlin-compiler", compilerVersion),
     bibix.base,
   ],
-  srcs = glob("src/**/*.java"),
 )
 
 def library(
   srcs: set<file>,
   resources: set<file> = [],
   deps: set<jvm.ClassPkg> = [],
-  runtimeDeps: set<jvm.ClassPkg> = [],
   compilerVersion: string = compilerVersion,
   sdkVersion: string = sdkVersion,
   outVersion: string = outVersion,

@@ -7,19 +7,18 @@ var sdkVersion: string = "2.13.10"
 var outVersion: string = "16"
 
 impl = ktjvm.library(
-  runtimeDeps = [
+  srcs = glob("src/**/*.kt"),
+  deps = [
     bibix.base,
     maven.artifact("org.jetbrains.kotlin", "kotlin-stdlib", "1.8.10"),
     maven.artifact("org.scala-lang", "scala-compiler", compilerVersion),
   ],
-  srcs = glob("src/**/*.kt"),
 )
 
 def library(
   srcs: set<file>,
   resources: set<file> = [],
   deps: set<jvm.ClassPkg> = [],
-  runtimeDeps: set<jvm.ClassPkg> = [],
   compilerVersion: string = compilerVersion,
   sdkVersion: string = sdkVersion,
   outVersion: string = outVersion,
