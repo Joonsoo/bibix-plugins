@@ -28,7 +28,7 @@ implTemplate = bibix.genRuleImplTemplateKt(
 )
 
 types = bibix.genTypesKt(
-  types = [ProtoSchema],
+  types = [ProtoSchema, GeneratedSrcsSet],
   packageName = "com.giyeok.bibix.plugins.protobuf",
 )
 
@@ -41,6 +41,10 @@ impl = ktjvm.library(
 )
 
 class ProtoSchema(schemaFiles: set<file>, includes: set<path>)
+
+class GeneratedSrcsSet(rootDir: directory, files: set<file>) {
+  as set<file> = files
+}
 
 def protocDownloadUrl(
   protobufVersion: string = protobufVersion,
@@ -73,7 +77,7 @@ def csharp(
 def java(
   schema: ProtoSchema,
   protocPath: directory = protocPath,
-): set<file> = impl:com.giyeok.bibix.plugins.protobuf.Compile:java
+): GeneratedSrcsSet = impl:com.giyeok.bibix.plugins.protobuf.Compile:java
 
 // --js_out=import_style=commonjs,binary:<dest directory> 식으로 쓰는 경우를 위한 추가 파라메터 필요
 def javascript(
@@ -84,7 +88,7 @@ def javascript(
 def kotlin(
   schema: ProtoSchema,
   protocPath: directory = protocPath,
-): set<file> = impl:com.giyeok.bibix.plugins.protobuf.Compile:kotlin
+): GeneratedSrcsSet = impl:com.giyeok.bibix.plugins.protobuf.Compile:kotlin
 
 def objc(
   schema: ProtoSchema,

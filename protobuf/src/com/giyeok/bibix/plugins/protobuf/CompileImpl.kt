@@ -102,7 +102,7 @@ class CompileImpl : CompileInterface {
     if (context.hashChanged) {
       callCompiler(context, listOf("--java_out=${destDirectory.absolutePathString()}"))
     }
-    return BuildRuleReturn.value(getFiles(destDirectory))
+    return BuildRuleReturn.value(GeneratedSrcsSet(destDirectory, getFiles(destDirectory)))
   }
 
   override fun javascript(
@@ -126,7 +126,7 @@ class CompileImpl : CompileInterface {
     if (context.hashChanged) {
       callCompiler(context, listOf("--kotlin_out=${destDirectory.absolutePathString()}"))
     }
-    return BuildRuleReturn.value(getFiles(destDirectory))
+    return BuildRuleReturn.value(GeneratedSrcsSet(destDirectory, getFiles(destDirectory)))
   }
 
   override fun objc(
