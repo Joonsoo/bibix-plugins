@@ -43,7 +43,7 @@ impl = ktjvm.library(
 class ProtoSchema(schemaFiles: set<file>, includes: set<path>)
 
 class GeneratedSrcsSet(rootDir: directory, files: set<file>) {
-  as set<file> = files
+  as set<file> = this.files
 }
 
 def protocDownloadUrl(
