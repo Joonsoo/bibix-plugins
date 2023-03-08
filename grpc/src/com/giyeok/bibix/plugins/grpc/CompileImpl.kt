@@ -61,7 +61,7 @@ class CompileImpl : CompileInterface {
         )
       )
     }
-    return BuildRuleReturn.value(getFiles(destDirectory))
+    return BuildRuleReturn.value(GeneratedSrcsSet(destDirectory, getFiles(destDirectory)).toBibix())
   }
 
   override fun kotlin(
@@ -79,7 +79,7 @@ class CompileImpl : CompileInterface {
         )
       )
     }
-    return BuildRuleReturn.value(getFiles(destDirectory))
+    return BuildRuleReturn.value(GeneratedSrcsSet(destDirectory, getFiles(destDirectory)).toBibix())
   }
 
   override fun web(

@@ -48,7 +48,7 @@ def java(
   schema: protobuf.ProtoSchema,
   protocPath: directory = protobuf.protocPath,
   pluginPath: file = javaPluginEnv,
-): set<file> = impl:com.giyeok.bibix.plugins.grpc.Compile:java
+): protobuf.GeneratedSrcsSet = impl:com.giyeok.bibix.plugins.grpc.Compile:java
 
 kotlinPlugin {
   def url(version: string): string =
@@ -64,7 +64,7 @@ def kotlin(
   schema: protobuf.ProtoSchema,
   protocPath: directory = protobuf.protocPath,
   pluginPath: file = kotlinPluginEnv,
-): set<file> = impl:com.giyeok.bibix.plugins.grpc.Compile:kotlin
+): protobuf.GeneratedSrcsSet = impl:com.giyeok.bibix.plugins.grpc.Compile:kotlin
 
 def web(
   schema: protobuf.ProtoSchema,
