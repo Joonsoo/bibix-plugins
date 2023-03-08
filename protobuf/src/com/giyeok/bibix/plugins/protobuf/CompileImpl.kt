@@ -48,9 +48,12 @@ class CompileImpl : CompileInterface {
     val process = Runtime.getRuntime()
       .exec(runArgs.toTypedArray(), arrayOf(), protocPath.resolve("bin").toFile())
 
+    errorMessage = String(process.errorStream.readAllBytes())
     context.progressLogger.logInfo(String(process.inputStream.readAllBytes()))
-    context.progressLogger.logError(String(process.errorStream.readAllBytes()))
+    context.progressLogger.logError(errorMessage)
     process.waitFor()
+
+    println(errorMessage)
 
     check(process.exitValue() == 0)
   }
