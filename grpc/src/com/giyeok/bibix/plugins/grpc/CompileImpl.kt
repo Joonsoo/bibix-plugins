@@ -39,11 +39,10 @@ class CompileImpl : CompileInterface {
     check(process.exitValue() == 0)
   }
 
-  private fun getFiles(directory: Path): SetValue {
-    val files = Files.walk(directory, 1000).toList()
+  private fun getFiles(directory: Path): List<Path> {
+    return Files.walk(directory, 1000).toList()
       .filter { it.isRegularFile() }
-      .map { FileValue(it) }
-    return SetValue(files)
+      .distinct()
   }
 
   override fun java(
