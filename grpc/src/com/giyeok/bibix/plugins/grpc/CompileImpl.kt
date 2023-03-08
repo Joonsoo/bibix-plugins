@@ -1,8 +1,6 @@
 package com.giyeok.bibix.plugins.grpc
 
 import com.giyeok.bibix.base.*
-import com.giyeok.bibix.plugins.grpc.Compile.OS
-import com.giyeok.bibix.plugins.grpc.Compile.ProtoSchema
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.PosixFilePermission
@@ -11,7 +9,7 @@ import kotlin.io.path.*
 class CompileImpl : CompileInterface {
   private fun callCompiler(context: BuildContext, pluginArgs: List<String>) {
     // TODO Skip compiling if !hashChanged
-    val os = (context.arguments.getValue("os") as EnumValue).value
+    val os = context.buildEnv.os
     val protocPath = (context.arguments.getValue("protocPath") as DirectoryValue).directory
 
     val schema = ProtoSchema.fromBibix(context.arguments.getValue("schema"))
@@ -24,7 +22,7 @@ class CompileImpl : CompileInterface {
     val protoPaths = srcs.map { it.parent }.toSet() + includes
     protoPaths.forEach { srcArgs.add("-I${it.absolutePathString()}") }
 
-    val executableName = if (os == "windows") "protoc.exe" else "protoc"
+    val executableName = if (os is OS.Windows) "protoc.exe" else "protoc"
     val executableFile = protocPath.resolve("bin").resolve(executableName)
 
     val prevPermissions = executableFile.getPosixFilePermissions()
@@ -53,7 +51,6 @@ class CompileImpl : CompileInterface {
     schema: ProtoSchema,
     protocPath: Path,
     pluginPath: Path,
-    os: OS,
   ): BuildRuleReturn {
     val destDirectory = context.destDirectory
     if (context.hashChanged) {
@@ -72,7 +69,6 @@ class CompileImpl : CompileInterface {
     schema: ProtoSchema,
     protocPath: Path,
     pluginPath: Path,
-    os: OS,
   ): BuildRuleReturn {
     val destDirectory = context.destDirectory
     if (context.hashChanged) {
@@ -91,7 +87,6 @@ class CompileImpl : CompileInterface {
     schema: ProtoSchema,
     protocPath: Path,
     pluginPath: Path,
-    os: OS,
   ): BuildRuleReturn {
     TODO()
   }

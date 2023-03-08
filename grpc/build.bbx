@@ -5,6 +5,9 @@ import curl
 from ".." import ktjvm
 from ".." import protobuf
 
+var grpcVersion = "1.53.0"
+var kotlinPluginVersion = "1.3.0"
+
 implTemplate = bibix.genRuleImplTemplateKt(
   rules = [
     java,
@@ -15,18 +18,23 @@ implTemplate = bibix.genRuleImplTemplateKt(
   implInterfaceName = "com.giyeok.bibix.plugins.grpc.CompileInterface",
 )
 
+types = bibix.genTypesKt(
+  types = [protobuf.ProtoSchema, protobuf.GeneratedSrcsSet],
+  packageName = "com.giyeok.bibix.plugins.grpc",
+)
+
 impl = ktjvm.library(
-  srcs = (implTemplate as list<file>) + glob("src/**/*.kt"),
-  deps = [
-    bibix.base,
-    maven.artifact("org.jetbrains.kotlin", "kotlin-stdlib-jdk8", "1.6.10"),
+  srcs = [
+    ...implTemplate as list<file>,
+    types,
+    ...glob("src/**/*.kt"),
   ],
+  deps = [bibix.base],
 )
 
 javaPlugin {
   def url(
     version: string,
-    os: OS = env.os,
     arch: Arch = env.arch,
   ): string = impl:com.giyeok.bibix.plugins.grpc.JavaPlugin:url
 
@@ -34,13 +42,12 @@ javaPlugin {
     impl:com.giyeok.bibix.plugins.grpc.JavaPlugin:createEnv
 }
 
-javaPluginEnv = javaPlugin.createEnv(curl.download(javaPlugin.url("1.46.0")))
+javaPluginEnv = javaPlugin.createEnv(curl.download(javaPlugin.url(grpcVersion)))
 
 def java(
   schema: protobuf.ProtoSchema,
   protocPath: directory = protobuf.protocPath,
   pluginPath: file = javaPluginEnv,
-  os: OS = env.os,
 ): set<file> = impl:com.giyeok.bibix.plugins.grpc.Compile:java
 
 kotlinPlugin {
@@ -51,18 +58,16 @@ kotlinPlugin {
     impl:com.giyeok.bibix.plugins.grpc.KotlinPlugin:createEnv
 }
 
-kotlinPluginEnv = kotlinPlugin.createEnv(curl.download(kotlinPlugin.url("1.2.1")))
+kotlinPluginEnv = kotlinPlugin.createEnv(curl.download(kotlinPlugin.url(kotlinPluginVersion)))
 
 def kotlin(
   schema: protobuf.ProtoSchema,
   protocPath: directory = protobuf.protocPath,
   pluginPath: file = kotlinPluginEnv,
-  os: OS = env.os,
 ): set<file> = impl:com.giyeok.bibix.plugins.grpc.Compile:kotlin
 
 def web(
   schema: protobuf.ProtoSchema,
   protocPath: directory = protobuf.protocPath,
   pluginPath: file,
-  os: OS = env.os,
 ): set<file> = impl:com.giyeok.bibix.plugins.grpc.Compile:web
