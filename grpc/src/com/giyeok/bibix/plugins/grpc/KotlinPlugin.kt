@@ -11,7 +11,7 @@ class KotlinPlugin {
   fun url(context: BuildContext): StringValue {
     val version = (context.arguments.getValue("version") as StringValue).value
     val url =
-      "https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-kotlin/$version/protoc-gen-grpc-kotlin-$version-jdk7.jar"
+      "https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-kotlin/$version/protoc-gen-grpc-kotlin-$version-jdk8.jar"
 
     return StringValue(url)
   }
