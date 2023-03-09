@@ -1,0 +1,20 @@
+import maven
+from ".." import ktjvm
+
+var ktjvm.compilerVersion = "1.8.10"
+var ktjvm.sdkVersion = "1.8.10"
+
+impl = ktjvm.library(
+  srcs = glob("src/**/*.kt"),
+  deps = [
+    bibix.base,
+    maven.artifact("com.github.spullara.mustache.java", "compiler", "0.9.10")
+  ]
+)
+
+def render(
+  template: file,
+  // key -> value
+  values: list<(string, any)>,
+  resultFileName: string = "rendered",
+): file = impl:com.giyeok.bibix.plugins.mustache.Render
