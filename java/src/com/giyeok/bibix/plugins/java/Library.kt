@@ -43,8 +43,6 @@ class Library {
       args.add(dest.absolutePathString())
       args.addAll(srcs.map { it.absolutePathString() })
 
-      println("java args: $args")
-
       val process = Runtime.getRuntime().exec(args.toTypedArray())
       val errorMessage = String(process.errorStream.readAllBytes())
       process.waitFor()
