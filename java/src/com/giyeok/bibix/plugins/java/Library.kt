@@ -46,10 +46,12 @@ class Library {
       println("java args: $args")
 
       val process = Runtime.getRuntime().exec(args.toTypedArray())
-      println(String(process.errorStream.readAllBytes()))
+      val errorMessage = String(process.errorStream.readAllBytes())
       process.waitFor()
 
-      check(process.exitValue() == 0)
+      if (process.exitValue() != 0) {
+        throw IllegalStateException("java compile error(args=$args)\n$errorMessage")
+      }
 
       // ClassPkg = (origin: ClassOrigin, cps: set<path>, deps: set<ClassPkg>)
       built(context.targetId, dest, deps)
