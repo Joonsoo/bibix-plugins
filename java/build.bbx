@@ -1,6 +1,9 @@
 import jvm
 import bibix
 import maven
+import file
+// 여기서 ktjvm은 기존에 빌드되어 있는 플러그인을 사용해야하기 때문에 from ".."가 아니라 from bibix.plugins
+from bibix.plugins import ktjvm
 
 var jdkVersion: string = "16"
 var srcVersion: string = "16"
@@ -8,10 +11,17 @@ var outVersion: string = "16"
 
 prepareBibixBase = bibix.base
 
-// bibix-java-plugin.jar must be compiled manually
+// bibix-java-plugin.jar must be compiled manually (by running buildImpl)
 impl = jvm.lib("build/bibix-java-plugin.jar", deps=[bibix.base])
 
-implJar = jvm.jar([impl])
+implBuilder = ktjvm.library(
+  srcs = glob("src/**/*.kt"),
+  deps = [bibix.base],
+)
+
+action buildImpl {
+  file.copyFile(jvm.jar([implBuilder], "bibix-java-plugin.jar"), "build")
+}
 
 def library(
   srcs: set<file>,

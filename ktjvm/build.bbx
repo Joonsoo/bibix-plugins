@@ -9,8 +9,8 @@ var outVersion: string = "16"
 impl = java.library(
   srcs = glob("src/**/*.java"),
   deps = [
-    maven.artifact("org.jetbrains.kotlin", "kotlin-compiler", compilerVersion),
     bibix.base,
+    maven.artifact("org.jetbrains.kotlin", "kotlin-compiler", compilerVersion),
   ],
 )
 
