@@ -11,9 +11,6 @@ var outVersion: string = "16"
 
 prepareBibixBase = bibix.base
 
-// bibix-java-plugin.jar must be compiled manually (by running buildImpl)
-impl = jvm.lib("build/bibix-java-plugin.jar", deps=[bibix.base])
-
 implBuilder = ktjvm.library(
   srcs = glob("src/**/*.kt"),
   deps = [bibix.base],
@@ -22,6 +19,9 @@ implBuilder = ktjvm.library(
 action buildImpl {
   file.copyFile(jvm.jar([implBuilder], "bibix-java-plugin.jar"), "build")
 }
+
+// bibix-java-plugin.jar must be compiled manually (by running buildImpl)
+impl = jvm.lib("build/bibix-java-plugin.jar", deps=[bibix.base])
 
 def library(
   srcs: set<file>,

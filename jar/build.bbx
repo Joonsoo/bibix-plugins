@@ -1,0 +1,32 @@
+from ".." import ktjvm
+import jvm
+import maven
+
+types = bibix.genTypesKt(
+  types = [jvm.ClassPkg, jvm.ClassPaths, jvm.ClassOrigin, jvm.MavenDep, jvm.LocalLib, jvm.LocalBuilt, jvm.CpInfo, jvm.JarInfo, jvm.ClassesInfo],
+  packageName = "com.giyeok.bibix.plugins.jar",
+)
+
+impl = ktjvm.library(
+  srcs = [types] + glob("src/**/*.kt"),
+  deps = [
+    bibix.base,
+    maven.artifact("org.jetbrains.kotlinx", "kotlinx-metadata-jvm", "0.6.0"),
+  ],
+)
+
+def jar(
+  deps: set<ClassPkg>,
+  jarFileName: string = "bundle.jar",
+): file = impl:com.giyeok.bibix.plugins.jar.Jar:jar
+
+def uberJar(
+  deps: set<ClassPkg>,
+  jarFileName: string = "bundle.jar",
+): file = impl:com.giyeok.bibix.plugins.jar.Jar:uberJar
+
+def executableUberJar(
+  deps: set<ClassPkg>,
+  mainClass: string,
+  jarFileName: string = "bundle.jar",
+): file = impl:com.giyeok.bibix.plugins.jar.Jar:executableUberJar
