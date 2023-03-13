@@ -64,7 +64,7 @@ class Library {
             LocalBuilt(context.targetId, "scala.library"),
             ClassesInfo(listOf(context.destDirectory), listOf(), srcs),
             newDeps.map { ClassPkg.fromBibix(it) },
-            runtimeDeps.map { ClassPkg.fromBibix(it) },
+            runtimeDeps.values.map { ClassPkg.fromBibix(it) },
           ).toBibix()
         )
       } else {
@@ -103,7 +103,7 @@ class Library {
               LocalBuilt(context.targetId, "scala.library"),
               ClassesInfo(listOf(context.destDirectory), resDirs.toList(), srcs),
               newDeps.map { ClassPkg.fromBibix(it) },
-              runtimeDeps.map { ClassPkg.fromBibix(it) },
+              runtimeDeps.values.map { ClassPkg.fromBibix(it) },
             ).toBibix()
           )
         }
