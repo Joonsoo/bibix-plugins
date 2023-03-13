@@ -46,7 +46,7 @@ public class Library {
         return resDirs;
     }
 
-    private BibixValue runCompiler(SetValue classPaths, SetValue deps, BuildContext context, ListValue optIns) throws IOException {
+    private BibixValue runCompiler(SetValue classPaths, SetValue deps, SetValue runtimeDeps, BuildContext context, ListValue optIns) throws IOException {
         Path destDirectory = context.getDestDirectory();
 
         SetValue srcs = (SetValue) context.getArguments().get("srcs");
@@ -109,12 +109,14 @@ public class Library {
                         "resDirs", new SetValue(resDirs.stream().map(PathValue::new).collect(Collectors.toList())),
                         "srcs", srcs
                 )),
-                "deps", deps
+                "deps", deps,
+                "runtimeDeps", runtimeDeps,
         ));
     }
 
     public BuildRuleReturn build(BuildContext context) throws IOException {
         SetValue deps = (SetValue) context.getArguments().get("deps");
+        SetValue runtimeDeps = (SetValue) context.getArguments().get("runtimeDeps");
         BibixValue optInsValue = (BibixValue) context.getArguments().get("optIns");
         ListValue optIns = (optInsValue instanceof NoneValue) ? null : (ListValue) optInsValue;
         StringValue sdkVersion = (StringValue) context.getArguments().get("sdkVersion");
@@ -136,7 +138,7 @@ public class Library {
                             (classPaths) -> {
                                 SetValue cps = (SetValue) ((ClassInstanceValue) classPaths).get("cps");
                                 try {
-                                    return BuildRuleReturn.value(runCompiler(cps, newDepsValue, context, optIns));
+                                    return BuildRuleReturn.value(runCompiler(cps, newDepsValue, runtimeDeps, context, optIns));
                                 } catch (Exception e) {
                                     return BuildRuleReturn.failed(e);
                                 }

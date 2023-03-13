@@ -1,6 +1,7 @@
 package com.giyeok.bibix.plugins.scala
 
 import com.giyeok.bibix.base.*
+import com.giyeok.bibix.plugins.base.*
 import scala.jdk.`CollectionConverters$`
 import scala.tools.nsc.Global
 import scala.tools.nsc.Settings
@@ -40,6 +41,7 @@ class Library {
 
   fun build(context: BuildContext): BuildRuleReturn {
     val deps = context.arguments.getValue("deps") as SetValue
+    val runtimeDeps = context.arguments.getValue("runtimeDeps") as SetValue
     val srcsValue = context.arguments.getValue("srcs") as SetValue
     val srcs = srcsValue.values.map { (it as FileValue).file }
     val resourcesValue = context.arguments.getValue("resources") as SetValue
@@ -61,7 +63,8 @@ class Library {
           ClassPkg(
             LocalBuilt(context.targetId, "scala.library"),
             ClassesInfo(listOf(context.destDirectory), listOf(), srcs),
-            newDeps.map { ClassPkg.fromBibix(it) }
+            newDeps.map { ClassPkg.fromBibix(it) },
+            runtimeDeps.map { ClassPkg.fromBibix(it) },
           ).toBibix()
         )
       } else {
@@ -99,7 +102,8 @@ class Library {
             ClassPkg(
               LocalBuilt(context.targetId, "scala.library"),
               ClassesInfo(listOf(context.destDirectory), resDirs.toList(), srcs),
-              newDeps.map { ClassPkg.fromBibix(it) }
+              newDeps.map { ClassPkg.fromBibix(it) },
+              runtimeDeps.map { ClassPkg.fromBibix(it) },
             ).toBibix()
           )
         }

@@ -1,13 +1,14 @@
 import jvm
 import maven
 from ".." import ktjvm
+import "../pluginBase" as pluginBase
 
 var compilerVersion: string = "2.13.10"
 var sdkVersion: string = "2.13.10"
 var outVersion: string = "16"
 
 impl = ktjvm.library(
-  srcs = glob("src/**/*.kt"),
+  srcs = [pluginBase.types] + glob("src/**/*.kt"),
   deps = [
     bibix.base,
     maven.artifact("org.jetbrains.kotlin", "kotlin-stdlib", "1.8.10"),

@@ -4,6 +4,7 @@ import maven
 import file
 // 여기서 ktjvm은 기존에 빌드되어 있는 플러그인을 사용해야하기 때문에 from ".."가 아니라 from bibix.plugins
 from bibix.plugins import ktjvm
+import "../pluginBase" as pluginBase
 
 var jdkVersion: string = "16"
 var srcVersion: string = "16"
@@ -12,7 +13,7 @@ var outVersion: string = "16"
 prepareBibixBase = bibix.base
 
 implBuilder = ktjvm.library(
-  srcs = glob("src/**/*.kt"),
+  srcs = [pluginBase.types] + glob("src/**/*.kt"),
   deps = [bibix.base],
 )
 

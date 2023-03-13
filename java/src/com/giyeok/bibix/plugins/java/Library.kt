@@ -1,15 +1,17 @@
 package com.giyeok.bibix.plugins.java
 
 import com.giyeok.bibix.base.*
+import com.giyeok.bibix.plugins.base.*
 import java.nio.file.Path
 
 class Library {
-  private fun built(targetId: String, dest: Path, deps: List<ClassPkg>): BuildRuleReturn =
+  private fun built(targetId: String, dest: Path, deps: List<ClassPkg>, runtimeDeps: List<ClassPkg>): BuildRuleReturn =
     BuildRuleReturn.value(
       ClassPkg(
         LocalBuilt(targetId, "java.library"),
         ClassesInfo(listOf(dest), listOf(), null),
         deps,
+        runtimeDeps,
       ).toBibix()
     )
 
@@ -18,6 +20,7 @@ class Library {
   fun build(context: BuildContext): BuildRuleReturn {
     val depsValue = context.arguments.getValue("deps") as SetValue
     val deps = depsValue.values.map { ClassPkg.fromBibix(it) }
+    val runtimeDeps = context.arguments.getValue("runtimeDeps") as SetValue
     val dest = context.destDirectory
 
     if (!context.hashChanged) {
@@ -52,7 +55,7 @@ class Library {
       }
 
       // ClassPkg = (origin: ClassOrigin, cps: set<path>, deps: set<ClassPkg>)
-      built(context.targetId, dest, deps)
+      built(context.targetId, dest, deps, runtimeDeps)
     }
   }
 
