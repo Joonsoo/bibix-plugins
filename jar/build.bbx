@@ -12,17 +12,17 @@ impl = ktjvm.library(
 )
 
 def jar(
-  deps: set<ClassPkg>,
+  deps: set<jvm.ClassPkg>,
   jarFileName: string = "bundle.jar",
 ): file = impl:com.giyeok.bibix.plugins.jar.Jar:jar
 
 def uberJar(
-  deps: set<ClassPkg>,
+  deps: set<jvm.ClassPkg>,
   jarFileName: string = "bundle.jar",
-): file = impl:com.giyeok.bibix.plugins.jar.Jar:uberJar
+): file = impl:com.giyeok.bibix.plugins.jar.Jar2:uberJar
 
 def executableUberJar(
-  deps: set<ClassPkg>,
+  deps: set<jvm.ClassPkg>,
   mainClass: string,
   jarFileName: string = "bundle.jar",
-): file = impl:com.giyeok.bibix.plugins.jar.Jar:executableUberJar
+): file = impl:com.giyeok.bibix.plugins.jar.Jar2:executableUberJar

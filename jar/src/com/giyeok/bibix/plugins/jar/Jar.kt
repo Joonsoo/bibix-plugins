@@ -56,7 +56,7 @@ class Jar {
     }
     val deps = (context.arguments.getValue("deps") as SetValue)
     return BuildRuleReturn.evalAndThen(
-      "resolveClassPkgs",
+      "jvm.resolveClassPkgs",
       mapOf("classPkgs" to deps)
     ) { classPaths ->
       val cps = ((classPaths as ClassInstanceValue)["cps"] as SetValue).values
@@ -175,4 +175,3 @@ class Jar {
     }
   }
 }
-
