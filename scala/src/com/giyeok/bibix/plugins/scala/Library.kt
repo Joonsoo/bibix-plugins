@@ -48,6 +48,11 @@ class Library {
     val resources = resourcesValue.values.map { (it as FileValue).file }
     val sdkVersion = context.arguments.getValue("sdkVersion") as StringValue
 
+    val resDirs = findResourceDirectoriesOf(resources)
+    if (resDirs.any { !it.isDirectory() }) {
+      throw IllegalStateException("Not implemented yet(Currently, the directories containing resource files must not contain non-resource files)")
+    }
+
     check(srcs.isNotEmpty()) { "srcs must not be empty" }
     return BuildRuleReturn.evalAndThen(
       "maven.artifact",
@@ -62,7 +67,7 @@ class Library {
         BuildRuleReturn.value(
           ClassPkg(
             LocalBuilt(context.targetId, "scala.library"),
-            ClassesInfo(listOf(context.destDirectory), listOf(), srcs),
+            ClassesInfo(listOf(context.destDirectory), resDirs.toList(), srcs),
             newDeps.map { ClassPkg.fromBibix(it) },
             runtimeDeps.values.map { ClassPkg.fromBibix(it) },
           ).toBibix()
@@ -91,11 +96,6 @@ class Library {
             throw IllegalStateException(
               "${global.reporter().errorCount()} errors reported from scala compiler"
             )
-          }
-
-          val resDirs = findResourceDirectoriesOf(resources)
-          if (resDirs.any { !it.isDirectory() }) {
-            throw IllegalStateException("Not implemented yet(Currently, the directories containing resource files must not contain non-resource files)")
           }
 
           BuildRuleReturn.value(
