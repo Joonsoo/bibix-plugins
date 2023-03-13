@@ -110,7 +110,7 @@ public class Library {
                         "srcs", srcs
                 )),
                 "deps", deps,
-                "runtimeDeps", runtimeDeps,
+                "runtimeDeps", runtimeDeps
         ));
     }
 
