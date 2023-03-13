@@ -1,0 +1,16 @@
+import jvm
+
+jvmTypes = bibix.genTypesKt(
+  types = [
+    jvm.ClassPkg,
+    jvm.ClassPaths,
+    jvm.ClassOrigin,
+    jvm.MavenDep,
+    jvm.LocalLib,
+    jvm.LocalBuilt,
+    jvm.CpInfo,
+    jvm.JarInfo,
+    jvm.ClassesInfo,
+  ],
+  packageName = "com.giyeok.bibix.plugins.base",
+)

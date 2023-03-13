@@ -26,6 +26,8 @@ impl = jvm.lib("build/bibix-java-plugin.jar", deps=[bibix.base])
 def library(
   srcs: set<file>,
   deps: set<jvm.ClassPkg> = [],
+  runtimeDeps: set<jvm.ClassPkg> = [],
+  resources: set<file> = [],
   compilerPath: string = "javac",
   jdkVersion: string = jdkVersion,
   srcVersion: string = srcVersion,

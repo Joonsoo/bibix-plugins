@@ -1,6 +1,7 @@
 package com.giyeok.bibix.plugins.jar
 
 import com.giyeok.bibix.base.*
+import com.giyeok.bibix.plugins.base.*
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Files

@@ -1,14 +1,10 @@
 from ".." import ktjvm
+import "../pluginBase" as pluginBase
 import jvm
 import maven
 
-types = bibix.genTypesKt(
-  types = [jvm.ClassPkg, jvm.ClassPaths, jvm.ClassOrigin, jvm.MavenDep, jvm.LocalLib, jvm.LocalBuilt, jvm.CpInfo, jvm.JarInfo, jvm.ClassesInfo],
-  packageName = "com.giyeok.bibix.plugins.jar",
-)
-
 impl = ktjvm.library(
-  srcs = [types] + glob("src/**/*.kt"),
+  srcs = [pluginBase.jvmTypes] + glob("src/**/*.kt"),
   deps = [
     bibix.base,
     maven.artifact("org.jetbrains.kotlinx", "kotlinx-metadata-jvm", "0.6.0"),
