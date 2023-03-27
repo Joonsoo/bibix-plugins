@@ -12,3 +12,8 @@ impl = ktjvm.library(
 def unzip(
   zipFile: file,
 ): directory = impl:com.giyeok.bibix.plugins.zip.Unzip
+
+def gzip(
+  file: file,
+  outputFileName?: string,
+): file = impl:com.giyeok.bibix.plugins.zip.Gzip
