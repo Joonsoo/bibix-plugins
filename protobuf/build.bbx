@@ -110,9 +110,10 @@ def ruby(
   protocPath: directory = protocPath,
 ): set<file> = impl:com.giyeok.bibix.plugins.protobuf.Compile:ruby
 
+// TODO automate dartPath and pluginPath initialization
 def dart(
   schema: ProtoSchema,
   protocPath: directory = protocPath,
+  dartPath: file,
+  pluginPath: file,
 ): set<file> = impl:com.giyeok.bibix.plugins.protobuf.Compile:dart
-
-// TODO go

@@ -7,7 +7,7 @@ import java.nio.file.attribute.PosixFilePermission
 import kotlin.io.path.*
 import com.giyeok.bibix.base.OS
 
-class CompileImpl : CompileInterface {
+class CompileImpl: CompileInterface {
   override fun schema(
     context: BuildContext,
     srcs: List<Path>,
@@ -24,7 +24,11 @@ class CompileImpl : CompileInterface {
     return BuildRuleReturn.value(ProtoSchema(srcs, mergedIncludes).toBibix())
   }
 
-  private fun callCompiler(context: BuildContext, outArgs: List<String>) {
+  private fun callCompiler(
+    context: BuildContext,
+    outArgs: List<String>,
+    newPathEnv: List<String> = listOf(),
+  ) {
     // TODO Skip compiling if !hashChanged
     val protocPath = (context.arguments.getValue("protocPath") as DirectoryValue).directory
 
@@ -45,8 +49,17 @@ class CompileImpl : CompileInterface {
     executableFile.setPosixFilePermissions(prevPermissions + PosixFilePermission.OWNER_EXECUTE)
 
     val runArgs = listOf(executableFile.absolutePathString()) + srcArgs + outArgs
-    val process = Runtime.getRuntime()
-      .exec(runArgs.toTypedArray(), arrayOf(), protocPath.resolve("bin").toFile())
+    println(runArgs)
+
+    val processBuilder = ProcessBuilder(runArgs)
+    if (newPathEnv.isNotEmpty()) {
+      println(processBuilder.environment())
+      val existingPath = (processBuilder.environment()["PATH"] ?: "").split(':')
+      processBuilder.environment()["PATH"] = (existingPath + newPathEnv).joinToString(":")
+    }
+    processBuilder.directory(protocPath.resolve("bin").absolute().toFile())
+
+    val process = processBuilder.start()
 
     val errorMessage = String(process.errorStream.readAllBytes())
     context.progressLogger.logInfo(String(process.inputStream.readAllBytes()))
@@ -166,8 +179,21 @@ class CompileImpl : CompileInterface {
   override fun dart(
     context: BuildContext,
     schema: ProtoSchema,
-    protocPath: Path
+    protocPath: Path,
+    dartPath: Path,
+    pluginPath: Path
   ): BuildRuleReturn {
-    TODO("Not yet implemented")
+    val destDirectory = context.destDirectory
+    if (context.hashChanged) {
+      callCompiler(
+        context,
+        listOf(
+          "--plugin=protoc-gen-dart=${pluginPath.absolutePathString()}",
+          "--dart_out=${destDirectory.absolutePathString()}",
+        ),
+        newPathEnv = listOf(dartPath.parent.absolutePathString())
+      )
+    }
+    return BuildRuleReturn.value(GeneratedSrcsSet(destDirectory, getFiles(destDirectory)).toBibix())
   }
 }
