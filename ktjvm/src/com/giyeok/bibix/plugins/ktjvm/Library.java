@@ -87,7 +87,7 @@ public class Library {
             args.add("-no-stdlib");
             // args.add("-no-reflect");
 
-            // System.out.println("** ktjvm args: " + args);
+            System.out.println("** ktjvm args: " + args);
             ExitCode exitCode = CLITool.doMainNoExit(new K2JVMCompiler(), args.toArray(new String[0]));
             if (exitCode != ExitCode.OK) {
                 throw new IllegalStateException("Failed to compile kotlin sources");
