@@ -131,7 +131,9 @@ public class Library {
                 (sdkClassPkg) -> {
                     List<BibixValue> newDeps = new ArrayList<>(deps.getValues());
                     // Insert to the beginning of newDeps, instead of appending to the list
+                    System.out.println("** ktjvm deps: " + deps.getValues());
                     newDeps.add(0, sdkClassPkg);
+                    System.out.println("** ktjvm deps with sdk: " + newDeps);
                     SetValue newDepsValue = new SetValue(newDeps);
                     return BuildRuleReturn.evalAndThen(
                             "jvm.resolveClassPkgs",
