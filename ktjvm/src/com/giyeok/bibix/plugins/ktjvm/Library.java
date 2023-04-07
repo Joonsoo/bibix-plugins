@@ -130,7 +130,8 @@ public class Library {
                 ),
                 (sdkClassPkg) -> {
                     List<BibixValue> newDeps = new ArrayList<>(deps.getValues());
-                    newDeps.add(sdkClassPkg);
+                    // Insert to the beginning of newDeps, instead of appending to the list
+                    newDeps.add(0, sdkClassPkg);
                     SetValue newDepsValue = new SetValue(newDeps);
                     return BuildRuleReturn.evalAndThen(
                             "jvm.resolveClassPkgs",

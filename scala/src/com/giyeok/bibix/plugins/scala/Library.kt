@@ -62,7 +62,8 @@ class Library {
         "version" to sdkVersion
       )
     ) { sdkClassPkg ->
-      val newDeps = deps.values + sdkClassPkg
+      // sdkClassPkg should be at the beginning of the deps
+      val newDeps = listOf(sdkClassPkg) + deps.values
       if (!context.hashChanged) {
         BuildRuleReturn.value(
           ClassPkg(

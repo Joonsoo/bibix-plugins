@@ -20,11 +20,12 @@ class Library {
   fun build(context: BuildContext): BuildRuleReturn {
     val depsValue = context.arguments.getValue("deps") as SetValue
     val deps = depsValue.values.map { ClassPkg.fromBibix(it) }
-    val runtimeDeps = context.arguments.getValue("runtimeDeps") as SetValue
+    val runtimeDepsValue = context.arguments.getValue("runtimeDeps") as SetValue
+    val runtimeDeps = runtimeDepsValue.values.map { ClassPkg.fromBibix(it) }
     val dest = context.destDirectory
 
     if (!context.hashChanged) {
-      return built(context.targetId, dest, deps)
+      return built(context.targetId, dest, deps, runtimeDeps)
     }
 
     return BuildRuleReturn.evalAndThen(
