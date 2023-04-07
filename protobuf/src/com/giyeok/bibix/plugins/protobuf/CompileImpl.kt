@@ -181,7 +181,8 @@ class CompileImpl: CompileInterface {
     schema: ProtoSchema,
     protocPath: Path,
     dartPath: Path,
-    pluginPath: Path
+    pluginPath: Path,
+    // TODO with grpc?
   ): BuildRuleReturn {
     val destDirectory = context.destDirectory
     if (context.hashChanged) {
@@ -189,7 +190,7 @@ class CompileImpl: CompileInterface {
         context,
         listOf(
           "--plugin=protoc-gen-dart=${pluginPath.absolutePathString()}",
-          "--dart_out=${destDirectory.absolutePathString()}",
+          "--dart_out=grpc:${destDirectory.absolutePathString()}",
         ),
         newPathEnv = listOf(dartPath.parent.absolutePathString())
       )
