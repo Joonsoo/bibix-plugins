@@ -120,6 +120,18 @@ class CompileImpl: CompileInterface {
     return BuildRuleReturn.value(GeneratedSrcsSet(destDirectory, getFiles(destDirectory)).toBibix())
   }
 
+  override fun javaLite(
+    context: BuildContext,
+    schema: ProtoSchema,
+    protocPath: Path
+  ): BuildRuleReturn {
+    val destDirectory = context.destDirectory
+    if (context.hashChanged) {
+      callCompiler(context, listOf("--java_out=lite:${destDirectory.absolutePathString()}"))
+    }
+    return BuildRuleReturn.value(GeneratedSrcsSet(destDirectory, getFiles(destDirectory)).toBibix())
+  }
+
   override fun javascript(
     context: BuildContext,
     schema: ProtoSchema,

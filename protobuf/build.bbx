@@ -79,6 +79,11 @@ def java(
   protocPath: directory = protocPath,
 ): GeneratedSrcsSet = impl:com.giyeok.bibix.plugins.protobuf.Compile:java
 
+def javaLite(
+  schema: ProtoSchema,
+  protocPath: directory = protocPath,
+): GeneratedSrcsSet = impl:com.giyeok.bibix.plugins.protobuf.Compile:javaLite
+
 // --js_out=import_style=commonjs,binary:<dest directory> 식으로 쓰는 경우를 위한 추가 파라메터 필요
 def javascript(
   schema: ProtoSchema,
