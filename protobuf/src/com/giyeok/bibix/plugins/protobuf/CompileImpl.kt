@@ -99,7 +99,11 @@ class CompileImpl: CompileInterface {
     schema: ProtoSchema,
     protocPath: Path
   ): BuildRuleReturn {
-    TODO("Not yet implemented")
+    val destDirectory = context.destDirectory
+    if (context.hashChanged) {
+      callCompiler(context, listOf("--csharp_out=${destDirectory.absolutePathString()}"))
+    }
+    return BuildRuleReturn.value(GeneratedSrcsSet(destDirectory, getFiles(destDirectory)).toBibix())
   }
 
   private fun getFiles(directory: Path): List<Path> {

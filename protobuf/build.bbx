@@ -73,7 +73,7 @@ def cpp(
 def csharp(
   schema: ProtoSchema,
   protocPath: directory = protocPath,
-): set<file> = impl:com.giyeok.bibix.plugins.protobuf.Compile:csharp
+): GeneratedSrcsSet = impl:com.giyeok.bibix.plugins.protobuf.Compile:csharp
 
 def java(
   schema: ProtoSchema,
