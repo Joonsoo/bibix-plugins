@@ -29,7 +29,7 @@ class JavaPlugin {
   }
 
   fun createEnv(context: BuildContext): FileValue {
-    val envDirectory = context.destDirectory
+    val envDirectory = context.clearDestDirectory()
     val pluginPath = envDirectory.resolve("protoc-gen-grpc-java")
 
     if (context.hashChanged) {

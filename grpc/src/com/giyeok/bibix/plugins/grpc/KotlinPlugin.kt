@@ -17,7 +17,7 @@ class KotlinPlugin {
   }
 
   fun createEnv(context: BuildContext): FileValue {
-    val envDirectory = context.destDirectory
+    val envDirectory = context.clearDestDirectory()
     val pluginPath = envDirectory.resolve("protoc-gen-grpc-kotlin")
 
     if (context.hashChanged) {
