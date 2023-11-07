@@ -31,6 +31,7 @@ class Library {
     val dest = context.destDirectory
 
     if (!context.hashChanged && context.prevResult != null) {
+      context.progressLogger.logInfo("Reusing previous result...")
       return BuildRuleReturn.value(context.prevResult!!)
     }
 
@@ -53,11 +54,14 @@ class Library {
       args.add(dest.absolutePathString())
       args.addAll(srcs.map { it.absolutePathString() })
 
+      context.progressLogger.logInfo(args.joinToString(" "))
+
       val process = Runtime.getRuntime().exec(args.toTypedArray())
       val errorMessage = String(process.errorStream.readAllBytes())
       process.waitFor()
 
       if (process.exitValue() != 0) {
+        context.progressLogger.logError(errorMessage)
         throw IllegalStateException("java compile error(args=$args)\n$errorMessage")
       }
 
