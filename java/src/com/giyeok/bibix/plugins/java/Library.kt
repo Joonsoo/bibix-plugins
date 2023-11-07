@@ -5,11 +5,17 @@ import com.giyeok.bibix.plugins.base.*
 import java.nio.file.Path
 
 class Library {
-  private fun built(targetId: String, dest: Path, deps: List<ClassPkg>, runtimeDeps: List<ClassPkg>): BuildRuleReturn =
+  private fun built(
+    targetId: String,
+    dest: Path,
+    srcs: List<Path>,
+    deps: List<ClassPkg>,
+    runtimeDeps: List<ClassPkg>
+  ): BuildRuleReturn =
     BuildRuleReturn.value(
       ClassPkg(
         LocalBuilt(targetId, "java.library"),
-        ClassesInfo(listOf(dest), listOf(), null),
+        ClassesInfo(listOf(dest), listOf(), srcs),
         deps,
         runtimeDeps,
       ).toBibix()
@@ -24,8 +30,8 @@ class Library {
     val runtimeDeps = runtimeDepsValue.values.map { ClassPkg.fromBibix(it) }
     val dest = context.destDirectory
 
-    if (!context.hashChanged) {
-      return built(context.targetId, dest, deps, runtimeDeps)
+    if (!context.hashChanged && context.prevResult != null) {
+      return BuildRuleReturn.value(context.prevResult!!)
     }
 
     return BuildRuleReturn.evalAndThen(
@@ -55,8 +61,9 @@ class Library {
         throw IllegalStateException("java compile error(args=$args)\n$errorMessage")
       }
 
+      // TODO resources
       // ClassPkg = (origin: ClassOrigin, cps: set<path>, deps: set<ClassPkg>)
-      built(context.targetId, dest, deps, runtimeDeps)
+      built(context.targetId, dest, srcs, deps, runtimeDeps)
     }
   }
 

@@ -19,7 +19,7 @@ implBuilder = ktjvm.library(
 )
 
 action buildImpl {
-  file.copyFile(jvm.jar([implBuilder], "bibix-java-plugin.jar"), "build")
+  file.copyFile(jar.jar([implBuilder], "bibix-java-plugin.jar"), "build")
 }
 
 // bibix-java-plugin.jar must be compiled manually (by running buildImpl)
