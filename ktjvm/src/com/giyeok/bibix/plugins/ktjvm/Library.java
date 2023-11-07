@@ -47,7 +47,7 @@ public class Library {
     }
 
     private BibixValue runCompiler(SetValue classPaths, SetValue deps, SetValue runtimeDeps, BuildContext context, ListValue optIns) throws IOException {
-        Path destDirectory = context.clearDestDirectory();
+        Path destDirectory = context.getDestDirectory();
 
         SetValue srcs = (SetValue) context.getArguments().get("srcs");
         if (srcs.getValues().isEmpty()) {
@@ -86,6 +86,8 @@ public class Library {
 
             args.add("-no-stdlib");
             // args.add("-no-reflect");
+
+            context.clearDestDirectory();
 
             // System.out.println("** ktjvm args: " + args);
             ExitCode exitCode = CLITool.doMainNoExit(new K2JVMCompiler(), args.toArray(new String[0]));

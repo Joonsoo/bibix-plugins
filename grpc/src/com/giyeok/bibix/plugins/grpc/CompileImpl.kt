@@ -51,8 +51,9 @@ class CompileImpl : CompileInterface {
     protocPath: Path,
     pluginPath: Path,
   ): BuildRuleReturn {
-    val destDirectory = context.clearDestDirectory()
+    val destDirectory = context.destDirectory
     if (context.hashChanged) {
+      context.clearDestDirectory()
       callCompiler(
         context, listOf(
           "--plugin=${pluginPath.absolutePathString()}",
@@ -69,8 +70,9 @@ class CompileImpl : CompileInterface {
     protocPath: Path,
     pluginPath: Path,
   ): BuildRuleReturn {
-    val destDirectory = context.clearDestDirectory()
+    val destDirectory = context.destDirectory
     if (context.hashChanged) {
+      context.clearDestDirectory()
       callCompiler(
         context, listOf(
           "--plugin=${pluginPath.absolutePathString()}",
