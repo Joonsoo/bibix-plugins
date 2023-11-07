@@ -51,7 +51,7 @@ class CompileImpl : CompileInterface {
     protocPath: Path,
     pluginPath: Path,
   ): BuildRuleReturn {
-    val destDirectory = context.destDirectory
+    val destDirectory = context.clearDestDirectory()
     if (context.hashChanged) {
       callCompiler(
         context, listOf(
@@ -69,7 +69,7 @@ class CompileImpl : CompileInterface {
     protocPath: Path,
     pluginPath: Path,
   ): BuildRuleReturn {
-    val destDirectory = context.destDirectory
+    val destDirectory = context.clearDestDirectory()
     if (context.hashChanged) {
       callCompiler(
         context, listOf(

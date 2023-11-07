@@ -77,7 +77,7 @@ class CompileImpl: CompileInterface {
     protocPath: Path,
     outputFileName: String?
   ): BuildRuleReturn {
-    val destFile = context.destDirectory.resolve(outputFileName ?: "descriptor.protoset")
+    val destFile = context.clearDestDirectory()
 
     if (context.hashChanged) {
       callCompiler(context, listOf("--descriptor_set_out=${destFile.absolutePathString()}"))
@@ -99,7 +99,7 @@ class CompileImpl: CompileInterface {
     schema: ProtoSchema,
     protocPath: Path
   ): BuildRuleReturn {
-    val destDirectory = context.destDirectory
+    val destDirectory = context.clearDestDirectory()
     if (context.hashChanged) {
       callCompiler(context, listOf("--csharp_out=${destDirectory.absolutePathString()}"))
     }
@@ -117,7 +117,7 @@ class CompileImpl: CompileInterface {
     schema: ProtoSchema,
     protocPath: Path
   ): BuildRuleReturn {
-    val destDirectory = context.destDirectory
+    val destDirectory = context.clearDestDirectory()
     if (context.hashChanged) {
       callCompiler(context, listOf("--java_out=${destDirectory.absolutePathString()}"))
     }
@@ -129,7 +129,7 @@ class CompileImpl: CompileInterface {
     schema: ProtoSchema,
     protocPath: Path
   ): BuildRuleReturn {
-    val destDirectory = context.destDirectory
+    val destDirectory = context.clearDestDirectory()
     if (context.hashChanged) {
       callCompiler(context, listOf("--java_out=lite:${destDirectory.absolutePathString()}"))
     }
@@ -141,7 +141,7 @@ class CompileImpl: CompileInterface {
     schema: ProtoSchema,
     protocPath: Path
   ): BuildRuleReturn {
-    val destDirectory = context.destDirectory
+    val destDirectory = context.clearDestDirectory()
     if (context.hashChanged) {
       callCompiler(context, listOf("--js_out=${destDirectory.absolutePathString()}"))
     }
@@ -153,7 +153,7 @@ class CompileImpl: CompileInterface {
     schema: ProtoSchema,
     protocPath: Path
   ): BuildRuleReturn {
-    val destDirectory = context.destDirectory
+    val destDirectory = context.clearDestDirectory()
     if (context.hashChanged) {
       callCompiler(context, listOf("--kotlin_out=${destDirectory.absolutePathString()}"))
     }
@@ -200,7 +200,7 @@ class CompileImpl: CompileInterface {
     pluginPath: Path,
     // TODO with grpc?
   ): BuildRuleReturn {
-    val destDirectory = context.destDirectory
+    val destDirectory = context.clearDestDirectory()
     if (context.hashChanged) {
       callCompiler(
         context,

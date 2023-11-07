@@ -47,7 +47,7 @@ public class Library {
     }
 
     private BibixValue runCompiler(SetValue classPaths, SetValue deps, SetValue runtimeDeps, BuildContext context, ListValue optIns) throws IOException {
-        Path destDirectory = context.getDestDirectory();
+        Path destDirectory = context.clearDestDirectory();
 
         SetValue srcs = (SetValue) context.getArguments().get("srcs");
         if (srcs.getValues().isEmpty()) {
