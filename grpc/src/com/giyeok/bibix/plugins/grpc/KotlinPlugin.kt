@@ -17,10 +17,11 @@ class KotlinPlugin {
   }
 
   fun createEnv(context: BuildContext): FileValue {
-    val envDirectory = context.clearDestDirectory()
+    val envDirectory = context.destDirectory
     val pluginPath = envDirectory.resolve("protoc-gen-grpc-kotlin")
 
     if (context.hashChanged) {
+      context.clearDestDirectory()
       val pluginJar = (context.arguments.getValue("pluginJar") as FileValue).file
 
       pluginPath.writeText(

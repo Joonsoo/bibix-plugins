@@ -29,10 +29,12 @@ class JavaPlugin {
   }
 
   fun createEnv(context: BuildContext): FileValue {
-    val envDirectory = context.clearDestDirectory()
+    val envDirectory = context.destDirectory
     val pluginPath = envDirectory.resolve("protoc-gen-grpc-java")
 
     if (context.hashChanged) {
+      context.clearDestDirectory()
+
       val pluginExe = (context.arguments.getValue("pluginExe") as FileValue).file
       val prevPermissions = pluginExe.getPosixFilePermissions()
       pluginExe.setPosixFilePermissions(prevPermissions + PosixFilePermission.OWNER_EXECUTE)
