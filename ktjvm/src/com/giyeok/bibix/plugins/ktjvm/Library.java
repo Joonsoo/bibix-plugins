@@ -87,6 +87,9 @@ public class Library {
             args.add("-no-stdlib");
             // args.add("-no-reflect");
 
+            StringValue outVersion = (StringValue) context.getArguments().get("outVersion");
+            args.add("-jvm-target=" + outVersion);
+
             context.clearDestDirectory();
 
             // System.out.println("** ktjvm args: " + args);
