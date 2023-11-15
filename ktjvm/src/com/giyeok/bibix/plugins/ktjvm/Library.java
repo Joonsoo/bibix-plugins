@@ -88,7 +88,7 @@ public class Library {
             // args.add("-no-reflect");
 
             StringValue outVersion = (StringValue) context.getArguments().get("outVersion");
-            args.add("-jvm-target=" + outVersion);
+            args.add("-jvm-target=" + outVersion.getValue());
 
             context.clearDestDirectory();
 
