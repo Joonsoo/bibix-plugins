@@ -35,6 +35,10 @@ class Library {
       return BuildRuleReturn.value(context.prevResult!!)
     }
 
+    val jdkVersion = context.arguments.getValue("jdkVersion") as StringValue
+    val srcVersion = context.arguments.getValue("srcVersion") as StringValue
+    val outVersion = context.arguments.getValue("outVersion") as StringValue
+
     return BuildRuleReturn.evalAndThen(
       "jvm.resolveClassPkgs",
       mapOf("classPkgs" to depsValue)
@@ -53,6 +57,13 @@ class Library {
       args.add("-d")
       args.add(dest.absolutePathString())
       args.addAll(srcs.map { it.absolutePathString() })
+
+      args.add("--release")
+      args.add(jdkVersion.value)
+      args.add("--source")
+      args.add(srcVersion.value)
+      args.add("--target")
+      args.add(outVersion.value)
 
       context.progressLogger.logInfo(args.joinToString(" "))
 
