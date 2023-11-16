@@ -54,6 +54,11 @@ class Library {
       throw IllegalStateException("Not implemented yet(Currently, the directories containing resource files must not contain non-resource files)")
     }
 
+    if (!context.hashChanged && context.prevResult != null) {
+      context.progressLogger.logInfo("Reusing previous value...")
+      return BuildRuleReturn.value(context.prevResult!!)
+    }
+
     check(srcs.isNotEmpty()) { "srcs must not be empty" }
     return BuildRuleReturn.evalAndThen(
       "maven.artifact",
@@ -65,7 +70,37 @@ class Library {
     ) { sdkClassPkg ->
       // sdkClassPkg should be at the beginning of the deps
       val newDeps = listOf(sdkClassPkg) + deps.values
-      if (!context.hashChanged) {
+      BuildRuleReturn.evalAndThen(
+        "jvm.resolveClassPkgs",
+        mapOf("classPkgs" to SetValue(newDeps))
+      ) { classPaths ->
+        val settings = Settings()
+        val cps = ClassPaths.fromBibix(classPaths)
+        cps.cps.forEach { cpPath ->
+          settings.classpath().append(cpPath.absolutePathString())
+        }
+        settings.outputDirs().setSingleOutput(context.destDirectory.absolutePathString())
+        // settings.usejavacp().`value_$eq`(true)
+        settings.target().`v_$eq`(outVersion.value)
+
+        val global = Global(settings)
+        val run = global.Run()
+        val srcPaths = srcs.map { it.absolutePathString() }
+
+        context.progressLogger.logInfo("scala compiler:")
+        context.progressLogger.logInfo("srcs=$srcPaths")
+        context.progressLogger.logInfo("settings=$settings")
+
+        val srcScala = `CollectionConverters$`.`MODULE$`.ListHasAsScala(srcPaths).asScala().toList()
+        run.compile(srcScala)
+
+        // 컴파일 실패시 예외 발생
+        if (global.reporter().hasErrors()) {
+          throw IllegalStateException(
+            "${global.reporter().errorCount()} errors reported from scala compiler"
+          )
+        }
+
         BuildRuleReturn.value(
           ClassPkg(
             LocalBuilt(context.targetId, "scala.library"),
@@ -74,42 +109,6 @@ class Library {
             runtimeDeps.values.map { ClassPkg.fromBibix(it) },
           ).toBibix()
         )
-      } else {
-        BuildRuleReturn.evalAndThen(
-          "jvm.resolveClassPkgs",
-          mapOf("classPkgs" to SetValue(newDeps))
-        ) { classPaths ->
-          val settings = Settings()
-          val cps = ClassPaths.fromBibix(classPaths)
-          cps.cps.forEach { cpPath ->
-            settings.classpath().append(cpPath.absolutePathString())
-          }
-          settings.outputDirs().setSingleOutput(context.destDirectory.absolutePathString())
-          // settings.usejavacp().`value_$eq`(true)
-          settings.target().`v_$eq`(outVersion.value)
-
-          val global = Global(settings)
-          val run = global.Run()
-          val srcPaths = srcs.map { it.absolutePathString() }
-          val srcScala = `CollectionConverters$`.`MODULE$`.ListHasAsScala(srcPaths).asScala().toList()
-          run.compile(srcScala)
-
-          // 컴파일 실패시 예외 발생
-          if (global.reporter().hasErrors()) {
-            throw IllegalStateException(
-              "${global.reporter().errorCount()} errors reported from scala compiler"
-            )
-          }
-
-          BuildRuleReturn.value(
-            ClassPkg(
-              LocalBuilt(context.targetId, "scala.library"),
-              ClassesInfo(listOf(context.destDirectory), resDirs.toList(), srcs),
-              newDeps.map { ClassPkg.fromBibix(it) },
-              runtimeDeps.values.map { ClassPkg.fromBibix(it) },
-            ).toBibix()
-          )
-        }
       }
     }
   }
