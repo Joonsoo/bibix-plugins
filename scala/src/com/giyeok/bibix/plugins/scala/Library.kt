@@ -84,9 +84,9 @@ class Library {
         settings.target().`v_$eq`(outVersion.value)
 
         val srcPaths = srcs.map { it.absolutePathString() }
-        context.progressLogger.logInfo("scala compiler:")
-        context.progressLogger.logInfo("srcs=$srcPaths")
-        context.progressLogger.logInfo("settings=$settings")
+        println("scala compiler:")
+        println("srcs=$srcPaths")
+        println("settings=$settings")
 
         val global = Global(settings)
         val run = global.Run()
