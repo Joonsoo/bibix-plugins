@@ -7,7 +7,6 @@ from bibix.plugins import ktjvm
 from bibix.plugins import jar
 import "../pluginBase" as pluginBase
 
-var jdkVersion: string = "16"
 var srcVersion: string = "16"
 var outVersion: string = "16"
 
@@ -31,7 +30,6 @@ def library(
   runtimeDeps: set<jvm.ClassPkg> = [],
   resources: set<file> = [],
   compilerPath: string = "javac",
-  jdkVersion: string = jdkVersion,
   srcVersion: string = srcVersion,
   outVersion: string = outVersion,
 ): jvm.ClassPkg = impl:com.giyeok.bibix.plugins.java.Library

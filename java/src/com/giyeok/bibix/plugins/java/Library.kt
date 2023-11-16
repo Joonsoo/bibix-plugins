@@ -35,7 +35,6 @@ class Library {
       return BuildRuleReturn.value(context.prevResult!!)
     }
 
-    val jdkVersion = context.arguments.getValue("jdkVersion") as StringValue
     val srcVersion = context.arguments.getValue("srcVersion") as StringValue
     val outVersion = context.arguments.getValue("outVersion") as StringValue
 
@@ -58,8 +57,6 @@ class Library {
       args.add(dest.absolutePathString())
       args.addAll(srcs.map { it.absolutePathString() })
 
-      args.add("--release")
-      args.add(jdkVersion.value)
       args.add("--source")
       args.add(srcVersion.value)
       args.add("--target")
