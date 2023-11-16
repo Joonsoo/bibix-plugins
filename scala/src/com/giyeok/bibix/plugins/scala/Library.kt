@@ -47,6 +47,7 @@ class Library {
     val resourcesValue = context.arguments.getValue("resources") as SetValue
     val resources = resourcesValue.values.map { (it as FileValue).file }
     val sdkVersion = context.arguments.getValue("sdkVersion") as StringValue
+    val outVersion = context.arguments.getValue("outVersion") as StringValue
 
     val resDirs = findResourceDirectoriesOf(resources)
     if (resDirs.any { !it.isDirectory() }) {
@@ -85,6 +86,7 @@ class Library {
           }
           settings.outputDirs().setSingleOutput(context.destDirectory.absolutePathString())
           // settings.usejavacp().`value_$eq`(true)
+          settings.target().`v_$eq`(outVersion.value)
 
           val global = Global(settings)
           val run = global.Run()
