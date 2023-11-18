@@ -1,0 +1,15 @@
+import bibix
+from ".." import ktjvm
+import maven
+
+impl = ktjvm.library(
+  srcs = glob("src/**/*.kt"),
+  deps = [
+    bibix.base,
+    maven.artifact("org.apache.commons", "commons-compress", "1.25.0"),
+  ],
+)
+
+def decompress(
+  tarFile: file,
+): directory = impl:com.giyeok.bibix.plugins.tar.Decompress

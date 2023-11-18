@@ -1,0 +1,15 @@
+import bibix
+from ".." import ktjvm
+import maven
+
+impl = ktjvm.library(
+  srcs = glob("src/**/*.kt"),
+  deps = [
+    bibix.base,
+    maven.artifact("org.tukaani", "xz", "1.9"),
+  ],
+)
+
+def decompress(
+  xzFile: file,
+): file = impl:com.giyeok.bibix.plugins.xz.Decompress
