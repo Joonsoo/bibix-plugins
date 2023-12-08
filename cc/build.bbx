@@ -2,23 +2,27 @@ package com.giyeok.bibix.plugins.cc
 
 from bibix.plugins import ktjvm
 
-super class Object { StaticObject, SharedObject }
-class StaticObject(obj: file)
-class SharedObject(obj: file)
+enum ObjType {
+  StaticObj, SharedObj
+}
 
 class Library(
-  obj: Object,
-  hdrRoots: set<directory>,
+  objs: set<file>,
+  objType: ObjType,
+  hdrs: set<FilesWithRoot>,
   srcs?: set<file>,
   deps: list<Library>,
 )
 
+class FilesWithRoot(root: path, files: set<file>)
+
 def library(
   srcs: set<file>,
-  hdrs: set<file> = [],
+  hdrs: list<{file, FilesWithRoot}> = [],
   deps: list<Library> = [],
   compilerCommand: string = "g++",
-  outputName?: string,
+  pwd: path = ".",
+  copts: list<string> = [],
 ): Library = impl:com.giyeok.bibix.plugins.cc.Compile:buildLibrary
 
 class Binary(
@@ -29,10 +33,11 @@ class Binary(
 
 def binary(
   srcs: set<file>,
-  hdrs: set<file> = [],
+  hdrs: list<{file, FilesWithRoot}> = [],
   deps: list<Library> = [],
   compilerCommand: string = "g++",
-  outputName?: string,
+  pwd: path = ".",
+  copts: list<string> = [],
 ): Binary = impl:com.giyeok.bibix.plugins.cc.Compile:buildBinary
 
 implTmpl = bibix.genRuleImplTemplateKt(
@@ -42,195 +47,256 @@ implTmpl = bibix.genRuleImplTemplateKt(
 )
 
 implTypes = bibix.genTypesKt(
-  types = [StaticObject, SharedObject, Library, Binary],
+  types = [Library, Binary, FilesWithRoot],
   packageName = "com.giyeok.bibix.plugins.cc",
 )
 
 impl = ktjvm.library(
-  srcs = glob("src/**.kt") + (implTmpl as list<file>) + [implTypes],
+  srcs = glob("src/**.kt") + [implTypes], // (implTmpl as list<file>)
   deps = [bibix.base],
 )
 
 test {
   helloworld = binary(
     srcs = ["test/hello.c"],
-    outputName = "hello"
   )
-  glib_sub_headers = [
-    "test/glib/glib/glib-autocleanups.h",
-    "test/glib/glib/glib-typeof.h",
-    "test/glib/glib/galloca.h",
-    "test/glib/glib/garray.h",
-    "test/glib/glib/gasyncqueue.h",
-    "test/glib/glib/gatomic.h",
-    "test/glib/glib/gbacktrace.h",
-    "test/glib/glib/gbase64.h",
-    "test/glib/glib/gbitlock.h",
-    "test/glib/glib/gbookmarkfile.h",
-    "test/glib/glib/gbytes.h",
-    "test/glib/glib/gcharset.h",
-    "test/glib/glib/gchecksum.h",
-    "test/glib/glib/gconvert.h",
-    "test/glib/glib/gdataset.h",
-    "test/glib/glib/gdate.h",
-    "test/glib/glib/gdatetime.h",
-    "test/glib/glib/gdir.h",
-    "test/glib/glib/genviron.h",
-    "test/glib/glib/gerror.h",
-    "test/glib/glib/gfileutils.h",
-    "test/glib/glib/ggettext.h",
-    "test/glib/glib/ghash.h",
-    "test/glib/glib/ghmac.h",
-    "test/glib/glib/ghook.h",
-    "test/glib/glib/ghostutils.h",
-    "test/glib/glib/gi18n.h",
-    "test/glib/glib/gi18n-lib.h",
-    "test/glib/glib/giochannel.h",
-    "test/glib/glib/gkeyfile.h",
-    "test/glib/glib/glist.h",
-    "test/glib/glib/gmacros.h",
-    "test/glib/glib/gmain.h",
-    "test/glib/glib/gmappedfile.h",
-    "test/glib/glib/gmarkup.h",
-    "test/glib/glib/gmem.h",
-    "test/glib/glib/gmessages.h",
-    "test/glib/glib/gnode.h",
-    "test/glib/glib/goption.h",
-    "test/glib/glib/gpathbuf.h",
-    "test/glib/glib/gpattern.h",
-    "test/glib/glib/gpoll.h",
-    "test/glib/glib/gprimes.h",
-    "test/glib/glib/gqsort.h",
-    "test/glib/glib/gquark.h",
-    "test/glib/glib/gqueue.h",
-    "test/glib/glib/grand.h",
-    "test/glib/glib/grcbox.h",
-    "test/glib/glib/grefcount.h",
-    "test/glib/glib/grefstring.h",
-    "test/glib/glib/gregex.h",
-    "test/glib/glib/gscanner.h",
-    "test/glib/glib/gsequence.h",
-    "test/glib/glib/gshell.h",
-    "test/glib/glib/gslice.h",
-    "test/glib/glib/gslist.h",
-    "test/glib/glib/gspawn.h",
-    "test/glib/glib/gstdio.h",
-    "test/glib/glib/gstrfuncs.h",
-    "test/glib/glib/gstrvbuilder.h",
-    "test/glib/glib/gtestutils.h",
-    "test/glib/glib/gstring.h",
-    "test/glib/glib/gstringchunk.h",
-    "test/glib/glib/gthread.h",
-    "test/glib/glib/gthreadpool.h",
-    "test/glib/glib/gtimer.h",
-    "test/glib/glib/gtimezone.h",
-    "test/glib/glib/gtrashstack.h",
-    "test/glib/glib/gtree.h",
-    "test/glib/glib/gtypes.h",
-    "test/glib/glib/guuid.h",
-    "test/glib/glib/gunicode.h",
-    "test/glib/glib/guri.h",
-    "test/glib/glib/gutils.h",
-    "test/glib/glib/gvarianttype.h",
-    "test/glib/glib/gvariant.h",
-    "test/glib/glib/gversion.h",
-    "test/glib/glib/gwin32.h",
-    "test/glib/glib/gprintf.h",
-  ]
-  glib = library(
-    srcs = [
-      "test/glib/glib/garcbox.c",
-      "test/glib/glib/garray.c",
-      "test/glib/glib/gasyncqueue.c",
-      "test/glib/glib/gatomic.c",
-      "test/glib/glib/gbacktrace.c",
-      "test/glib/glib/gbase64.c",
-      "test/glib/glib/gbitlock.c",
-      "test/glib/glib/gbookmarkfile.c",
-      "test/glib/glib/gbytes.c",
-      "test/glib/glib/gcharset.c",
-      "test/glib/glib/gchecksum.c",
-      "test/glib/glib/gconvert.c",
-      "test/glib/glib/gdataset.c",
-      "test/glib/glib/gdate.c",
-      "test/glib/glib/gdatetime.c",
-      "test/glib/glib/gdatetime-private.c",
-      "test/glib/glib/gdir.c",
-      "test/glib/glib/genviron.c",
-      "test/glib/glib/gerror.c",
-      "test/glib/glib/gfileutils.c",
-      "test/glib/glib/ggettext.c",
-      "test/glib/glib/ghash.c",
-      "test/glib/glib/ghmac.c",
-      "test/glib/glib/ghook.c",
-      "test/glib/glib/ghostutils.c",
-      "test/glib/glib/giochannel.c",
-      "test/glib/glib/gkeyfile.c",
-      "test/glib/glib/glib-init.c",
-      "test/glib/glib/glib-private.c",
-      "test/glib/glib/glist.c",
-      "test/glib/glib/gmain.c",
-      "test/glib/glib/gmappedfile.c",
-      "test/glib/glib/gmarkup.c",
-      "test/glib/glib/gmem.c",
-      "test/glib/glib/gmessages.c",
-      "test/glib/glib/gnode.c",
-      "test/glib/glib/goption.c",
-      "test/glib/glib/gpathbuf.c",
-      "test/glib/glib/gpattern.c",
-      "test/glib/glib/gpoll.c",
-      "test/glib/glib/gprimes.c",
-      "test/glib/glib/gqsort.c",
-      "test/glib/glib/gquark.c",
-      "test/glib/glib/gqueue.c",
-      "test/glib/glib/grand.c",
-      "test/glib/glib/grcbox.c",
-      "test/glib/glib/grefcount.c",
-      "test/glib/glib/grefstring.c",
-      "test/glib/glib/gregex.c",
-      "test/glib/glib/gscanner.c",
-      "test/glib/glib/gsequence.c",
-      "test/glib/glib/gshell.c",
-      "test/glib/glib/gslice.c",
-      "test/glib/glib/gslist.c",
-      "test/glib/glib/gstdio.c",
-      "test/glib/glib/gstrfuncs.c",
-      "test/glib/glib/gstring.c",
-      "test/glib/glib/gstringchunk.c",
-      "test/glib/glib/gstrvbuilder.c",
-      "test/glib/glib/gtestutils.c",
-      "test/glib/glib/gthread.c",
-      "test/glib/glib/gthreadpool.c",
-      "test/glib/glib/gtimer.c",
-      "test/glib/glib/gtimezone.c",
-      "test/glib/glib/gtrace.c",
-      "test/glib/glib/gtranslit.c",
-      "test/glib/glib/gtrashstack.c",
-      "test/glib/glib/gtree.c",
-      "test/glib/glib/guniprop.c",
-      "test/glib/glib/gutf8.c",
-      "test/glib/glib/gunibreak.c",
-      "test/glib/glib/gunicollate.c",
-      "test/glib/glib/gunidecomp.c",
-      "test/glib/glib/guri.c",
-      "test/glib/glib/gutils.c",
-      "test/glib/glib/guuid.c",
-      "test/glib/glib/gvariant.c",
-      "test/glib/glib/gvariant-core.c",
-      "test/glib/glib/gvariant-parser.c",
-      "test/glib/glib/gvariant-serialiser.c",
-      "test/glib/glib/gvarianttypeinfo.c",
-      "test/glib/glib/gvarianttype.c",
-      "test/glib/glib/gversion.c",
-      "test/glib/glib/gwakeup.c",
-      "test/glib/glib/gprintf.c",
-    ],
-    hdrs = [
-      ...glib_sub_headers,
-      "test/glib/glib/gtrace-private.h",
-      "test/glib/glib/guriprivate.h",
-      "test/glib/glib/gutilsprivate.h",
-    ],
-    outputName = "glib.o"
-  )
+
+  // TODO: abslcpp @ test/abseil-cpp {
+  //       -> 이 namespace 안에선 base directory가 바뀌도록
+  // TODO: abslcpp { import * from "test/abseil-cpp" }
+  abslcpp {
+    base {
+      config = library(
+        srcs = [],
+        hdrs = [
+          FilesWithRoot("test/abseil-cpp", [
+            "test/abseil-cpp/absl/base/config.h",
+            "test/abseil-cpp/absl/base/options.h",
+            "test/abseil-cpp/absl/base/policy_checks.h",
+          ]),
+        ]
+      )
+
+      coreHeaders = library(
+        srcs = [],
+        hdrs = [
+          FilesWithRoot("test/abseil-cpp", [
+            "test/abseil-cpp/absl/base/attributes.h",
+            "test/abseil-cpp/absl/base/const_init.h",
+            "test/abseil-cpp/absl/base/macros.h",
+            "test/abseil-cpp/absl/base/optimization.h",
+            "test/abseil-cpp/absl/base/port.h",
+            "test/abseil-cpp/absl/base/thread_annotations.h",
+          ]),
+        ],
+        deps = [config]
+      )
+
+      typeTraits = library(
+        srcs = [],
+        hdrs = [
+          FilesWithRoot("test/abseil-cpp", [
+            "test/abseil-cpp/absl/meta/type_traits.h",
+          ]),
+        ],
+        deps = [config, coreHeaders],
+      )
+
+      baseInternal = library(
+        srcs = [],
+        hdrs = [
+          FilesWithRoot("test/abseil-cpp", [
+            "test/abseil-cpp/absl/base/internal/hide_ptr.h",
+            "test/abseil-cpp/absl/base/internal/identity.h",
+            "test/abseil-cpp/absl/base/internal/inline_variable.h",
+            "test/abseil-cpp/absl/base/internal/invoke.h",
+            "test/abseil-cpp/absl/base/internal/scheduling_mode.h",
+          ]),
+        ],
+        deps = [config, typeTraits]
+      )
+
+      base = library(
+        srcs = [
+          "test/abseil-cpp/absl/base/internal/cycleclock.cc",
+          "test/abseil-cpp/absl/base/internal/spinlock.cc",
+          "test/abseil-cpp/absl/base/internal/sysinfo.cc",
+          "test/abseil-cpp/absl/base/internal/thread_identity.cc",
+          "test/abseil-cpp/absl/base/internal/unscaledcycleclock.cc",
+        ],
+        hdrs = [
+          FilesWithRoot("test/abseil-cpp", [
+            "test/abseil-cpp/absl/base/call_once.h",
+            "test/abseil-cpp/absl/base/casts.h",
+            "test/abseil-cpp/absl/base/internal/cycleclock.h",
+            "test/abseil-cpp/absl/base/internal/low_level_scheduling.h",
+            "test/abseil-cpp/absl/base/internal/per_thread_tls.h",
+            "test/abseil-cpp/absl/base/internal/spinlock.h",
+            "test/abseil-cpp/absl/base/internal/sysinfo.h",
+            "test/abseil-cpp/absl/base/internal/thread_identity.h",
+            "test/abseil-cpp/absl/base/internal/tsan_mutex_interface.h",
+            "test/abseil-cpp/absl/base/internal/unscaledcycleclock.h",
+          ]),
+        ],
+        copts = ["-std=c++14"],
+        deps = [
+          atomicHook,
+          baseInternal,
+          config,
+          coreHeaders,
+          cycleclockInternal,
+          dynamicAnnotations,
+          logSeverity,
+          rawLoggingInternal,
+          spinlockWait,
+          typeTraits,
+        ],
+      )
+
+      logSeverity = library(
+        srcs = [
+          "test/abseil-cpp/absl/base/log_severity.cc",
+        ],
+        hdrs = [
+          FilesWithRoot("test/abseil-cpp", [
+            "test/abseil-cpp/absl/base/log_severity.h",
+          ]),
+        ],
+        deps = [config, coreHeaders],
+        pwd = "test/abseil-cpp",
+        copts = ["-std=c++14"],
+      )
+
+      noDestructor = library(
+        srcs = [],
+        hdrs = [
+          FilesWithRoot("test/abseil-cpp", [
+            "test/abseil-cpp/absl/base/no_destructor.h",
+          ])
+        ],
+        deps = [config]
+      )
+
+      nullability = library(
+        srcs = [
+          "test/abseil-cpp/absl/base/internal/nullability_impl.h",
+        ],
+        hdrs = [
+          FilesWithRoot("test/abseil-cpp", [
+            "test/abseil-cpp/absl/base/internal/nullability.h",
+          ])
+        ],
+        deps = [config, typeTraits],
+        pwd = "test/abseil-cpp",
+        copts = ["-std=c++14"],
+      )
+
+      rawLoggingInternal = library(
+        srcs = [
+          "test/abseil-cpp/absl/base/internal/raw_logging.cc",
+        ],
+        hdrs = [
+          FilesWithRoot("test/abseil-cpp", [
+            "test/abseil-cpp/absl/base/internal/raw_logging.h",
+          ])
+        ],
+        deps = [atomicHook, config, coreHeaders, errnoSaver, logSeverity],
+        pwd = "test/abseil-cpp",
+        copts = ["-std=c++14"],
+      )
+
+      spinlockWait = library(
+        srcs = [
+          "test/abseil-cpp/absl/base/internal/spinlock_akaros.inc",
+          "test/abseil-cpp/absl/base/internal/spinlock_linux.inc",
+          "test/abseil-cpp/absl/base/internal/spinlock_posix.inc",
+          "test/abseil-cpp/absl/base/internal/spinlock_wait.cc",
+          "test/abseil-cpp/absl/base/internal/spinlock_win32.inc",
+        ],
+        hdrs = [
+          FilesWithRoot("test/abseil-cpp", [
+            "test/abseil-cpp/absl/base/internal/spinlock_wait.h",
+          ])
+        ],
+        deps = [baseInternal, coreHeaders, errnoSaver],
+        pwd = "test/abseil-cpp",
+        copts = ["-std=c++14"],
+      )
+
+      cycleclockInternal = library(
+        srcs = [],
+        hdrs = [
+          FilesWithRoot("test/abseil-cpp", [
+            "test/abseil-cpp/absl/base/internal/cycleclock_config.h",
+            "test/abseil-cpp/absl/base/internal/unscaledcycleclock_config.h",
+          ])
+        ],
+        deps = [baseInternal, config],
+        pwd = "test/abseil-cpp",
+        copts = ["-std=c++14"],
+      )
+
+      dynamicAnnotations = library(
+        srcs = [
+          "test/abseil-cpp/absl/base/internal/dynamic_annotations.h",
+        ],
+        hdrs = [
+          FilesWithRoot("test/abseil-cpp", [
+            "test/abseil-cpp/absl/base/dynamic_annotations.h",
+          ]),
+        ],
+        pwd = "test/abseil-cpp",
+        copts = ["-std=c++14"],
+      )
+
+      mallocInternal = library(
+        srcs = [
+          "test/abseil-cpp/absl/base/internal/low_level_alloc.cc",
+        ],
+        hdrs = [
+          FilesWithRoot("test/abseil-cpp", [
+            "test/abseil-cpp/absl/base/internal/direct_mmap.h",
+            "test/abseil-cpp/absl/base/internal/low_level_alloc.h",
+          ]),
+        ],
+        deps = [base, baseInternal, config, coreHeaders, dynamicAnnotations, rawLoggingInternal],
+        pwd = "test/abseil-cpp",
+        copts = ["-std=c++14"],
+      )
+
+      atomicHook = library(
+        srcs = [],
+        hdrs = [
+          FilesWithRoot("test/abseil-cpp", [
+            "test/abseil-cpp/absl/base/internal/atomic_hook.h",
+          ]),
+        ],
+        deps = [config, coreHeaders]
+      )
+
+      errnoSaver = library(
+        srcs = [],
+        hdrs = [
+          FilesWithRoot("test/abseil-cpp", [
+            "test/abseil-cpp/absl/base/internal/errno_saver.h",
+          ]),
+        ],
+        deps = [config]
+      )
+
+      strerror = library(
+        srcs = [
+          "test/abseil-cpp/absl/base/internal/strerror.cc",
+        ],
+        hdrs = [
+          FilesWithRoot("test/abseil-cpp", [
+            "test/abseil-cpp/absl/base/internal/strerror.h",
+          ]),
+        ],
+        deps = [config, coreHeaders, errnoSaver],
+        pwd = "test/abseil-cpp",
+        copts = ["-std=c++14"],
+      )
+    }
+  }
 }
