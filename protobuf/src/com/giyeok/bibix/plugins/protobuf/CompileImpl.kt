@@ -92,7 +92,12 @@ class CompileImpl: CompileInterface {
     schema: ProtoSchema,
     protocPath: Path
   ): BuildRuleReturn {
-    TODO("Not yet implemented")
+    val destDirectory = context.destDirectory
+    if (context.hashChanged) {
+      context.clearDestDirectory()
+      callCompiler(context, listOf("--cpp_out=${destDirectory.absolutePathString()}"))
+    }
+    return BuildRuleReturn.value(GeneratedSrcsSet(destDirectory, getFiles(destDirectory)).toBibix())
   }
 
   override fun csharp(
