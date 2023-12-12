@@ -1,0 +1,32 @@
+package com.giyeok.bibix.plugins.javafx
+
+import curl
+from ".." import ktjvm
+from ".." import zip
+import maven
+import jvm
+
+var javafxVersion: string = "21.0.1"
+
+impl = ktjvm.library(
+  srcs = glob("src/**.kt"),
+  deps = [bibix.base],
+)
+
+test = ktjvm.library(
+  srcs = glob("test/**.kt"),
+)
+
+def sdkDownloadUrl(
+  javafxVersion: string = javafxVersion,
+  arch: Arch = env.arch,
+): string = impl:com.giyeok.bibix.plugins.javafx.SdkDownloadUrl
+
+// sdkPath = "${zip.unzip(curl.download(sdkDownloadUrl()))}/javafx-sdk-$javafxVersion/lib"
+
+def libs(
+  javafxVersion: string = javafxVersion,
+  arch: Arch = env.arch,
+): jvm.ClassPkg = impl:com.giyeok.bibix.plugins.javafx.Libs
+
+ttt = libs()
