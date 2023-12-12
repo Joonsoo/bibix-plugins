@@ -24,9 +24,7 @@ def sdkDownloadUrl(
 
 // sdkPath = "${zip.unzip(curl.download(sdkDownloadUrl()))}/javafx-sdk-$javafxVersion/lib"
 
-def libs(
+def dependency(
   javafxVersion: string = javafxVersion,
   arch: Arch = env.arch,
 ): jvm.ClassPkg = impl:com.giyeok.bibix.plugins.javafx.Libs
-
-ttt = libs()
