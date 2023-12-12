@@ -90,6 +90,8 @@ public class Library {
             StringValue outVersion = (StringValue) context.getArguments().get("outVersion");
             args.add("-jvm-target=" + outVersion.getValue());
 
+            context.getProgressLogger().logInfo(args.toString());
+
             context.clearDestDirectory();
 
             // System.out.println("** ktjvm args: " + args);
