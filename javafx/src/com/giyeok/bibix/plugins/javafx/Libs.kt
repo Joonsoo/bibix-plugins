@@ -2,6 +2,7 @@ package com.giyeok.bibix.plugins.javafx
 
 import com.giyeok.bibix.base.*
 import java.nio.file.Path
+import kotlin.io.path.absolutePathString
 
 class Libs {
   fun classPkgFrom(libDir: Path, moduleName: String): ClassInstanceValue {
@@ -23,7 +24,7 @@ class Libs {
           )
         ),
         "deps" to SetValue(),
-        "nativeLibDirs" to SetValue(DirectoryValue(libDir))
+        "nativeLibDirs" to SetValue(DirectoryValue(libDir)),
       )
     )
   }
@@ -55,6 +56,7 @@ class Libs {
           //  media: jvm.ClassPkg,
           //  swing: jvm.ClassPkg,
           //  web: jvm.ClassPkg,
+          context.progressLogger.logInfo("--module-path ${libDir.absolutePathString()} --add-modules javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.media,javafx.swing,javafx.web")
           BuildRuleReturn.value(
             ClassInstanceValue(
               "com.giyeok.bibix.plugins.javafx",
