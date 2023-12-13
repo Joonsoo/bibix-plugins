@@ -24,7 +24,22 @@ def sdkDownloadUrl(
 
 // sdkPath = "${zip.unzip(curl.download(sdkDownloadUrl()))}/javafx-sdk-$javafxVersion/lib"
 
-def dependency(
+class JavaFxModules(
+  base: jvm.ClassPkg,
+  controls: jvm.ClassPkg,
+  fxml: jvm.ClassPkg,
+  graphics: jvm.ClassPkg,
+  media: jvm.ClassPkg,
+  swing: jvm.ClassPkg,
+  web: jvm.ClassPkg,
+) {
+  as list<jvm.ClassPkg> = [this.base, this.controls, this.fxml, this.graphics, this.media, this.swing, this.web]
+}
+
+def allModules(
   javafxVersion: string = javafxVersion,
   arch: Arch = env.arch,
-): jvm.ClassPkg = impl:com.giyeok.bibix.plugins.javafx.Libs
+): JavaFxModules = impl:com.giyeok.bibix.plugins.javafx.Libs
+
+default = allModules()
+
