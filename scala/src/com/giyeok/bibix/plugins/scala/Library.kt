@@ -106,6 +106,7 @@ class Library {
             ClassesInfo(listOf(context.destDirectory), resDirs.toList(), srcs),
             newDeps.map { ClassPkg.fromBibix(it) },
             runtimeDeps.values.map { ClassPkg.fromBibix(it) },
+            nativeLibDirs=listOf(),
           ).toBibix()
         )
       }
