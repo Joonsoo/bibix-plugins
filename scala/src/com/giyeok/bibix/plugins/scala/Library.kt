@@ -1,7 +1,10 @@
 package com.giyeok.bibix.plugins.scala
 
 import com.giyeok.bibix.base.*
-import com.giyeok.bibix.plugins.base.*
+import com.giyeok.bibix.plugins.base.ClassPaths
+import com.giyeok.bibix.plugins.base.ClassPkg
+import com.giyeok.bibix.plugins.base.ClassesInfo
+import com.giyeok.bibix.plugins.base.LocalBuilt
 import scala.jdk.`CollectionConverters$`
 import scala.tools.nsc.Global
 import scala.tools.nsc.Settings
@@ -106,7 +109,7 @@ class Library {
             cpinfo=ClassesInfo(listOf(context.destDirectory), resDirs.toList(), srcs),
             deps=newDeps.map { ClassPkg.fromBibix(it) },
             runtimeDeps=runtimeDeps.values.map { ClassPkg.fromBibix(it) },
-            nativeLibDirs=listOf<Path>(),
+            nativeLibDirs=listOf(),
           ).toBibix()
         )
       }
