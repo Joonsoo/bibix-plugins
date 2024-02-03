@@ -1,9 +1,6 @@
 import maven
 from ".." import ktjvm
 
-var ktjvm.compilerVersion = "1.8.10"
-var ktjvm.sdkVersion = "1.8.10"
-
 impl = ktjvm.library(
   srcs = glob("src/**/*.kt"),
   deps = [
