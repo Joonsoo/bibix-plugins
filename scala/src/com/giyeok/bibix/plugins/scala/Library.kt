@@ -102,11 +102,11 @@ class Library {
 
         BuildRuleReturn.value(
           ClassPkg(
-            LocalBuilt(context.targetId, "scala.library"),
-            ClassesInfo(listOf(context.destDirectory), resDirs.toList(), srcs),
-            newDeps.map { ClassPkg.fromBibix(it) },
-            runtimeDeps.values.map { ClassPkg.fromBibix(it) },
-            nativeLibDirs=listOf(),
+            origin=LocalBuilt(context.targetId, "scala.library"),
+            cpinfo=ClassesInfo(listOf(context.destDirectory), resDirs.toList(), srcs),
+            deps=newDeps.map { ClassPkg.fromBibix(it) },
+            runtimeDeps=runtimeDeps.values.map { ClassPkg.fromBibix(it) },
+            nativeLibDirs=listOf<Path>(),
           ).toBibix()
         )
       }
