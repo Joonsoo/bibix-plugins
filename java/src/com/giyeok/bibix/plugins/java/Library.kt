@@ -18,6 +18,7 @@ class Library {
         ClassesInfo(listOf(dest), listOf(), srcs),
         deps,
         runtimeDeps,
+        listOf(),
       ).toBibix()
     )
 
