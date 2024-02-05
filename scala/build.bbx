@@ -15,12 +15,14 @@ impl = ktjvm.library(
   ],
 )
 
+scalaSdk = maven.artifact("org.scala-lang", "scala-library", sdkVersion)
+
 def library(
   srcs: set<file>,
   deps: set<jvm.ClassPkg> = [],
   runtimeDeps: set<jvm.ClassPkg> = [],
   resources: set<file> = [],
   compilerVersion: string = compilerVersion,
-  sdkVersion: string = sdkVersion,
+  sdk?: jvm.ClassPkg = scalaSdk,
   outVersion: string = outVersion,
 ): jvm.ClassPkg = impl:com.giyeok.bibix.plugins.scala.Library

@@ -126,35 +126,27 @@ public class Library {
         SetValue runtimeDeps = (SetValue) context.getArguments().get("runtimeDeps");
         BibixValue optInsValue = (BibixValue) context.getArguments().get("optIns");
         ListValue optIns = (optInsValue instanceof NoneValue) ? null : (ListValue) optInsValue;
-        StringValue sdkVersion = (StringValue) context.getArguments().get("sdkVersion");
+        BibixValue sdk = context.getNullableField("sdk");
 
+        List<BibixValue> newDeps = new ArrayList<>(deps.getValues());
+        // Insert to the beginning of newDeps, instead of appending to the list
+        // System.out.println("** ktjvm deps: " + deps.getValues());
+        if (sdk != null) {
+            newDeps.add(0, sdk);
+        }
+        // System.out.println("** ktjvm deps with sdk: " + newDeps);
+        SetValue newDepsValue = new SetValue(newDeps);
         return BuildRuleReturn.evalAndThen(
-                "maven.artifact",
-                Map.of(
-                        "group", new StringValue("org.jetbrains.kotlin"),
-                        "artifact", new StringValue("kotlin-stdlib"),
-                        "version", sdkVersion
-                ),
-                (sdkClassPkg) -> {
-                    List<BibixValue> newDeps = new ArrayList<>(deps.getValues());
-                    // Insert to the beginning of newDeps, instead of appending to the list
-                    // System.out.println("** ktjvm deps: " + deps.getValues());
-                    newDeps.add(0, sdkClassPkg);
-                    // System.out.println("** ktjvm deps with sdk: " + newDeps);
-                    SetValue newDepsValue = new SetValue(newDeps);
-                    return BuildRuleReturn.evalAndThen(
-                            "jvm.resolveClassPkgs",
-                            Map.of("classPkgs", newDepsValue),
-                            (classPaths) -> {
-                                SetValue cps = (SetValue) ((ClassInstanceValue) classPaths).get("cps");
-                                try {
-                                    return BuildRuleReturn.value(runCompiler(cps, newDepsValue, runtimeDeps, context, optIns));
-                                } catch (Exception e) {
-                                    return BuildRuleReturn.failed(e);
-                                }
-                            });
-                }
-        );
+                "jvm.resolveClassPkgs",
+                Map.of("classPkgs", newDepsValue),
+                (classPaths) -> {
+                    SetValue cps = (SetValue) ((ClassInstanceValue) classPaths).get("cps");
+                    try {
+                        return BuildRuleReturn.value(runCompiler(cps, newDepsValue, runtimeDeps, context, optIns));
+                    } catch (Exception e) {
+                        return BuildRuleReturn.failed(e);
+                    }
+                });
     }
 
     public void run(ActionContext context) {

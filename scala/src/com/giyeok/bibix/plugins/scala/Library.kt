@@ -49,7 +49,7 @@ class Library {
     val srcs = srcsValue.values.map { (it as FileValue).file }
     val resourcesValue = context.arguments.getValue("resources") as SetValue
     val resources = resourcesValue.values.map { (it as FileValue).file }
-    val sdkVersion = context.arguments.getValue("sdkVersion") as StringValue
+    val sdk = context.getNullableField("sdk") as? ClassInstanceValue
     val outVersion = context.arguments.getValue("outVersion") as StringValue
 
     val resDirs = findResourceDirectoriesOf(resources)
@@ -63,56 +63,46 @@ class Library {
     }
 
     check(srcs.isNotEmpty()) { "srcs must not be empty" }
+    val newDeps = listOfNotNull(sdk) + deps.values
     return BuildRuleReturn.evalAndThen(
-      "maven.artifact",
-      mapOf(
-        "group" to StringValue("org.scala-lang"),
-        "artifact" to StringValue("scala-library"),
-        "version" to sdkVersion
-      )
-    ) { sdkClassPkg ->
-      // sdkClassPkg should be at the beginning of the deps
-      val newDeps = listOf(sdkClassPkg) + deps.values
-      BuildRuleReturn.evalAndThen(
-        "jvm.resolveClassPkgs",
-        mapOf("classPkgs" to SetValue(newDeps))
-      ) { classPaths ->
-        val settings = Settings()
-        val cps = ClassPaths.fromBibix(classPaths)
-        cps.cps.forEach { cpPath ->
-          settings.classpath().append(cpPath.absolutePathString())
-        }
-        settings.outputDirs().setSingleOutput(context.destDirectory.absolutePathString())
-        // settings.usejavacp().`value_$eq`(true)
-        settings.target().`v_$eq`(outVersion.value)
+      "jvm.resolveClassPkgs",
+      mapOf("classPkgs" to SetValue(newDeps))
+    ) { classPaths ->
+      val settings = Settings()
+      val cps = ClassPaths.fromBibix(classPaths)
+      cps.cps.forEach { cpPath ->
+        settings.classpath().append(cpPath.absolutePathString())
+      }
+      settings.outputDirs().setSingleOutput(context.destDirectory.absolutePathString())
+      // settings.usejavacp().`value_$eq`(true)
+      settings.target().`v_$eq`(outVersion.value)
 
-        val srcPaths = srcs.map { it.absolutePathString() }
-        context.progressLogger.logInfo("scala compiler:")
-        context.progressLogger.logInfo("srcs=$srcPaths")
-        context.progressLogger.logInfo("settings=$settings")
+      val srcPaths = srcs.map { it.absolutePathString() }
+      context.progressLogger.logInfo("scala compiler:")
+      context.progressLogger.logInfo("srcs=$srcPaths")
+      context.progressLogger.logInfo("settings=$settings")
 
-        val global = Global(settings)
-        val run = global.Run()
-        val srcScala = `CollectionConverters$`.`MODULE$`.ListHasAsScala(srcPaths).asScala().toList()
-        run.compile(srcScala)
+      val global = Global(settings)
+      val run = global.Run()
+      val srcScala = `CollectionConverters$`.`MODULE$`.ListHasAsScala(srcPaths).asScala().toList()
+      run.compile(srcScala)
 
-        // 컴파일 실패시 예외 발생
-        if (global.reporter().hasErrors()) {
-          throw IllegalStateException(
-            "${global.reporter().errorCount()} errors reported from scala compiler"
-          )
-        }
-
-        BuildRuleReturn.value(
-          ClassPkg(
-            origin=LocalBuilt(context.targetId, "scala.library"),
-            cpinfo=ClassesInfo(listOf(context.destDirectory), resDirs.toList(), srcs),
-            deps=newDeps.map { ClassPkg.fromBibix(it) },
-            runtimeDeps=runtimeDeps.values.map { ClassPkg.fromBibix(it) },
-            nativeLibDirs=listOf(),
-          ).toBibix()
+      // 컴파일 실패시 예외 발생
+      if (global.reporter().hasErrors()) {
+        throw IllegalStateException(
+          "${global.reporter().errorCount()} errors reported from scala compiler"
         )
       }
+
+      return BuildRuleReturn.value(
+        ClassPkg(
+          origin=LocalBuilt(context.targetId, "scala.library"),
+          cpinfo=ClassesInfo(listOf(context.destDirectory), resDirs.toList(), srcs),
+          deps=newDeps.map { ClassPkg.fromBibix(it) },
+          runtimeDeps=runtimeDeps.values.map { ClassPkg.fromBibix(it) },
+          nativeLibDirs=listOf(),
+        ).toBibix()
+      )
     }
   }
 }

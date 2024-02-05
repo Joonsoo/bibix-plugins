@@ -14,13 +14,15 @@ impl = java.library(
   ],
 )
 
+ktjvmSdk = maven.artifact("org.jetbrains.kotlin", "kotlin-stdlib", sdkVersion)
+
 def library(
   srcs: set<file>,
   deps: set<jvm.ClassPkg> = [],
   runtimeDeps: set<jvm.ClassPkg> = [],
   resources: set<file> = [],
   compilerVersion: string = compilerVersion,
-  sdkVersion: string = sdkVersion,
+  sdk?: jvm.ClassPkg = ktjvmSdk,
   outVersion: string = outVersion,
   optIns?: list<string>,
 ): jvm.ClassPkg = impl:com.giyeok.bibix.plugins.ktjvm.Library
