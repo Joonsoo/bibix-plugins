@@ -94,7 +94,7 @@ class Library {
         )
       }
 
-      return BuildRuleReturn.value(
+      BuildRuleReturn.value(
         ClassPkg(
           origin=LocalBuilt(context.targetId, "scala.library"),
           cpinfo=ClassesInfo(listOf(context.destDirectory), resDirs.toList(), srcs),
