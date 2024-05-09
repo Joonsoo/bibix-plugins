@@ -3,15 +3,17 @@ import jvm
 from ".." import ktjvm
 import maven
 
-var junitVersion: string = "5.8.2"
-var junitPlatformVersion: string = "1.8.2"
+var junitVersion: string = "5.10.2"
+var junitPlatformVersion: string = "1.10.2"
 
 impl = ktjvm.library(
   srcs = glob("src/**.kt"),
   deps = [
     bibix.base,
-    maven.artifact("org.junit.jupiter", "junit-jupiter-engine", junitVersion),
     maven.artifact("org.junit.platform", "junit-platform-launcher", junitPlatformVersion),
+    maven.artifact("org.junit.jupiter", "junit-jupiter-engine", junitVersion),
+    maven.artifact("org.junit.vintage", "junit-vintage-engine", junitVersion),
+    maven.artifact("org.codehaus.plexus", "plexus-classworlds", "2.6.0"),
   ],
 )
 
@@ -19,3 +21,15 @@ action def runTests(
   deps: set<jvm.ClassPkg>,
   targetClasses?: set<string>,
 ) = impl:com.giyeok.bibix.plugins.junit5.Run
+
+test = ktjvm.library(
+  srcs = glob("test/**.kt"),
+  deps = [
+    maven.artifact("org.junit.jupiter", "junit-jupiter-api", junitVersion),
+    maven.artifact("com.google.truth", "truth", "1.1.3"),
+  ]
+)
+
+action runTestsTest {
+  runTests([test])
+}
