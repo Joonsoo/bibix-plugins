@@ -7,17 +7,15 @@ var junitVersion: string = "5.8.2"
 var junitPlatformVersion: string = "1.8.2"
 
 impl = ktjvm.library(
+  srcs = glob("src/**.kt"),
   deps = [
-    bibix.base(),
-    maven.artifact("org.jetbrains.kotlin", "kotlin-stdlib-jdk8", "1.6.20"),
+    bibix.base,
     maven.artifact("org.junit.jupiter", "junit-jupiter-engine", junitVersion),
     maven.artifact("org.junit.platform", "junit-platform-launcher", junitPlatformVersion),
   ],
-  srcs = glob("src/**/*.kt"),
 )
 
 action def runTests(
   deps: set<jvm.ClassPkg>,
   targetClasses?: set<string>,
 ) = impl:com.giyeok.bibix.plugins.junit5.Run
-
