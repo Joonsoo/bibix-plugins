@@ -1,0 +1,400 @@
+from bibix.plugins import cc
+
+var cc.copts = ["-std=c++14"]
+
+base {
+  config = cc.library(
+    srcs = [],
+    hdrs = [
+      "absl/base/options.h",
+      "absl/base/config.h",
+      "absl/base/policy_checks.h",
+    ]
+  )
+
+  coreHeaders = cc.library(
+    srcs = [],
+    hdrs = [
+      "absl/base/attributes.h",
+      "absl/base/const_init.h",
+      "absl/base/macros.h",
+      "absl/base/optimization.h",
+      "absl/base/port.h",
+      "absl/base/thread_annotations.h",
+    ],
+    deps = [config]
+  )
+
+  typeTraits = cc.library(
+    srcs = [],
+    hdrs = [
+      "absl/meta/type_traits.h",
+    ],
+    deps = [config, coreHeaders],
+  )
+
+  baseInternal = cc.library(
+    srcs = [],
+    hdrs = [
+      "absl/base/internal/hide_ptr.h",
+      "absl/base/internal/identity.h",
+      "absl/base/internal/inline_variable.h",
+      "absl/base/internal/invoke.h",
+      "absl/base/internal/scheduling_mode.h",
+    ],
+    deps = [config, typeTraits]
+  )
+
+  base = cc.library(
+    srcs = [
+      "absl/base/internal/cycleclock.cc",
+      "absl/base/internal/spinlock.cc",
+      "absl/base/internal/sysinfo.cc",
+      "absl/base/internal/thread_identity.cc",
+      "absl/base/internal/unscaledcycleclock.cc",
+    ],
+    hdrs = [
+      "absl/base/call_once.h",
+      "absl/base/casts.h",
+      "absl/base/internal/cycleclock.h",
+      "absl/base/internal/low_level_scheduling.h",
+      "absl/base/internal/per_thread_tls.h",
+      "absl/base/internal/spinlock.h",
+      "absl/base/internal/sysinfo.h",
+      "absl/base/internal/thread_identity.h",
+      "absl/base/internal/tsan_mutex_interface.h",
+      "absl/base/internal/unscaledcycleclock.h",
+    ],
+    deps = [
+      atomicHook,
+      baseInternal,
+      config,
+      coreHeaders,
+      cycleclockInternal,
+      dynamicAnnotations,
+      logSeverity,
+      rawLoggingInternal,
+      spinlockWait,
+      typeTraits,
+    ],
+  )
+
+  logSeverity = cc.library(
+    srcs = [
+      "absl/base/log_severity.cc",
+    ],
+    hdrs = [
+      "absl/base/log_severity.h",
+    ],
+    deps = [config, coreHeaders],
+    pwd = "test/abseil-cpp",
+  )
+
+  noDestructor = cc.library(
+    srcs = [],
+    hdrs = [
+      "absl/base/no_destructor.h",
+    ],
+    deps = [config]
+  )
+
+  nullability = cc.library(
+    srcs = [
+      "absl/base/internal/nullability_impl.h",
+    ],
+    hdrs = [
+      "absl/base/internal/nullability.h",
+    ],
+    deps = [config, typeTraits],
+    pwd = "test/abseil-cpp",
+  )
+
+  rawLoggingInternal = cc.library(
+    srcs = [
+      "absl/base/internal/raw_logging.cc",
+    ],
+    hdrs = [
+      "absl/base/internal/raw_logging.h",
+    ],
+    deps = [atomicHook, config, coreHeaders, errnoSaver, logSeverity],
+    pwd = "test/abseil-cpp",
+  )
+
+  spinlockWait = cc.library(
+    srcs = [
+      "absl/base/internal/spinlock_akaros.inc",
+      "absl/base/internal/spinlock_linux.inc",
+      "absl/base/internal/spinlock_posix.inc",
+      "absl/base/internal/spinlock_wait.cc",
+      "absl/base/internal/spinlock_win32.inc",
+    ],
+    hdrs = [
+      "absl/base/internal/spinlock_wait.h",
+    ],
+    deps = [baseInternal, coreHeaders, errnoSaver],
+    pwd = "test/abseil-cpp",
+  )
+
+  cycleclockInternal = cc.library(
+    srcs = [],
+    hdrs = [
+      "absl/base/internal/cycleclock_config.h",
+      "absl/base/internal/unscaledcycleclock_config.h",
+    ],
+    deps = [baseInternal, config],
+    pwd = "test/abseil-cpp",
+  )
+
+  dynamicAnnotations = cc.library(
+    srcs = [
+      "absl/base/internal/dynamic_annotations.h",
+    ],
+    hdrs = [
+      "absl/base/dynamic_annotations.h",
+    ],
+    pwd = "test/abseil-cpp",
+  )
+
+  mallocInternal = cc.library(
+    srcs = [
+      "absl/base/internal/low_level_alloc.cc",
+    ],
+    hdrs = [
+      "absl/base/internal/direct_mmap.h",
+      "absl/base/internal/low_level_alloc.h",
+    ],
+    deps = [base, baseInternal, config, coreHeaders, dynamicAnnotations, rawLoggingInternal],
+    pwd = "test/abseil-cpp",
+  )
+
+  atomicHook = cc.library(
+    srcs = [],
+    hdrs = [
+      "absl/base/internal/atomic_hook.h",
+    ],
+    deps = [config, coreHeaders]
+  )
+
+  errnoSaver = cc.library(
+    srcs = [],
+    hdrs = [
+      "absl/base/internal/errno_saver.h",
+    ],
+    deps = [config]
+  )
+
+  strerror = cc.library(
+    srcs = [
+      "absl/base/internal/strerror.cc",
+    ],
+    hdrs = [
+      "absl/base/internal/strerror.h",
+    ],
+    deps = [config, coreHeaders, errnoSaver],
+    pwd = "test/abseil-cpp",
+  )
+
+  throwDelegate = cc.library(
+    srcs = [
+      "absl/base/internal/throw_delegate.cc",
+    ],
+    hdrs = [
+      "absl/base/internal/throw_delegate.h",
+    ],
+    deps = [
+      config,
+      rawLoggingInternal,
+    ],
+  )
+
+  endian = cc.library(
+    srcs = [],
+    hdrs = [
+      "absl/base/internal/endian.h",
+      "absl/base/internal/unaligned_access.h",
+    ],
+    deps = [
+      base,
+      config,
+      coreHeaders,
+      nullability,
+    ],
+  )
+}
+
+memory = cc.library(
+  srcs = [],
+  hdrs = [
+    "absl/memory/memory.h",
+  ],
+  deps = [
+    base.coreHeaders,
+    meta.typeTraits,
+  ]
+)
+
+meta {
+  typeTraits = cc.library(
+    srcs = [],
+    hdrs = [
+      "absl/meta/type_traits.h",
+    ],
+    deps = [
+      base.config,
+      base.coreHeaders,
+    ]
+  )
+}
+
+numeric {
+  bits = cc.library(
+    srcs = [],
+    hdrs = [
+      "absl/numeric/bits.h",
+      "absl/numeric/internal/bits.h",
+    ],
+    deps = [
+      base.config,
+      base.coreHeaders,
+    ]
+  )
+
+  int128 = cc.library(
+    srcs = [
+      "absl/numeric/int128.cc",
+      "absl/numeric/int128_have_intrinsic.inc",
+      "absl/numeric/int128_no_intrinsic.inc",
+    ],
+    hdrs = [
+      "absl/numeric/int128.h",
+    ],
+    deps = [
+      bits,
+      base.config,
+      base.coreHeaders,
+      types.compare,
+    ]
+  )
+}
+
+types {
+  compare = cc.library(
+    srcs = [],
+    hdrs = [
+      "absl/bits/int128.h",
+    ],
+    deps = [
+      base.config,
+      base.coreHeaders,
+      meta.typeTraits,
+    ]
+  )
+}
+
+strings {
+  stringView = cc.library(
+    srcs = ["absl/strings/string_view.cc"],
+    hdrs = [
+      "absl/strings/string_view.h",
+    ],
+    deps = [
+      base.base,
+      base.config,
+      base.coreHeaders,
+      base.nullability,
+      base.throwDelegate,
+    ],
+  )
+
+  charset = cc.library(
+    srcs = [],
+    hdrs = [
+      "absl/strings/charset.h",
+    ],
+    deps = [
+      stringView,
+      base.coreHeaders,
+    ],
+  )
+
+  internal = cc.library(
+    srcs = [
+      "absl/strings/internal/escaping.cc",
+      "absl/strings/internal/ostringstream.cc",
+      "absl/strings/internal/utf8.cc",
+    ],
+    hdrs = [
+      "absl/strings/internal/escaping.h",
+      "absl/strings/internal/ostringstream.h",
+      "absl/strings/internal/resize_uninitialized.h",
+      "absl/strings/internal/utf8.h",
+    ],
+    deps = [
+      base.config,
+      base.coreHeaders,
+      base.endian,
+      base.rawLoggingInternal,
+      base.typeTraits,
+    ],
+  )
+
+  strings = cc.library(
+    srcs = [
+      "absl/strings/ascii.cc",
+      "absl/strings/charconv.cc",
+      "absl/strings/escaping.cc",
+      "absl/strings/internal/charconv_bigint.cc",
+      "absl/strings/internal/charconv_bigint.h",
+      "absl/strings/internal/charconv_parse.cc",
+      "absl/strings/internal/charconv_parse.h",
+      "absl/strings/internal/damerau_levenshtein_distance.cc",
+      "absl/strings/internal/memutil.cc",
+      "absl/strings/internal/memutil.h",
+      "absl/strings/internal/stl_type_traits.h",
+      "absl/strings/internal/str_join_internal.h",
+      "absl/strings/internal/str_split_internal.h",
+      "absl/strings/internal/stringify_sink.cc",
+      "absl/strings/internal/stringify_sink.h",
+      "absl/strings/match.cc",
+      "absl/strings/numbers.cc",
+      "absl/strings/str_cat.cc",
+      "absl/strings/str_replace.cc",
+      "absl/strings/str_split.cc",
+      "absl/strings/substitute.cc",
+    ],
+    hdrs = [
+      "absl/strings/ascii.h",
+      "absl/strings/charconv.h",
+      "absl/strings/escaping.h",
+      "absl/strings/has_absl_stringify.h",
+      "absl/strings/internal/damerau_levenshtein_distance.h",
+      "absl/strings/internal/has_absl_stringify.h",
+      "absl/strings/internal/string_constant.h",
+      "absl/strings/match.h",
+      "absl/strings/numbers.h",
+      "absl/strings/str_cat.h",
+      "absl/strings/str_join.h",
+      "absl/strings/str_replace.h",
+      "absl/strings/str_split.h",
+      "absl/strings/string_view.h",
+      "absl/strings/strip.h",
+      "absl/strings/substitute.h",
+    ],
+    deps = [
+      charset,
+      internal,
+      stringView,
+      base.base,
+      base.config,
+      base.coreHeaders,
+      base.endian,
+      base.nullability,
+      base.rawLoggingInternal,
+      base.throwDelegate,
+      memory,
+      meta.typeTraits,
+      numeric.bits,
+      numeric.int128,
+    ],
+  )
+}

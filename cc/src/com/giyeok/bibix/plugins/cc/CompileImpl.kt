@@ -2,15 +2,19 @@ package com.giyeok.bibix.plugins.cc
 
 import com.giyeok.bibix.base.*
 import java.nio.file.Path
+import java.nio.file.attribute.PosixFilePermission
+import java.nio.file.attribute.PosixFilePermissions
 import kotlin.io.path.absolute
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.name
+import kotlin.io.path.setPosixFilePermissions
 
 class Compile {
   fun runCompiler(context: BuildContext, args: List<String>) {
     val pwd = (context.arguments.getValue("pwd") as PathValue).path.absolute()
 
-    context.progressLogger.logInfo("args: ${args.joinToString(" ")} pwd=${pwd.absolutePathString()}")
+    context.progressLogger.logInfo("pwd=${pwd.absolutePathString()}")
+    context.progressLogger.logInfo("args: ${args.joinToString(" ")}")
     val process = Runtime.getRuntime().exec(args.toTypedArray(), null, pwd.toFile())
     val errorMessage = String(process.errorStream.readAllBytes())
     val stdMessage = String(process.inputStream.readAllBytes())
@@ -37,23 +41,24 @@ class Compile {
       else -> throw IllegalStateException()
     }
 
-  fun buildLibrary(
-    context: BuildContext
-  ): BuildRuleReturn =
-    buildLibraryImpl(
-      context,
-      (context.arguments.getValue("srcs") as SetValue).values.map { (it as FileValue).file },
-      (context.arguments.getValue("hdrs") as ListValue).values.map { hdrValueFrom(it) },
-      (context.arguments.getValue("deps") as ListValue).values.map { Library.fromBibix(it) },
-      (context.arguments.getValue("compilerCommand") as StringValue).value,
-      (context.arguments.getValue("copts") as ListValue).values.map { (it as StringValue).value },
-    )
+  fun buildLibrary(context: BuildContext): BuildRuleReturn = buildLibraryImpl(
+    context,
+    (context.arguments.getValue("srcs") as SetValue).values.map { (it as FileValue).file },
+    (context.arguments.getValue("hdrs") as ListValue).values.map { hdrValueFrom(it) },
+    (context.arguments.getValue("deps") as ListValue).values.map { Library.fromBibix(it) },
+    (context.arguments.getValue("compilerCommand") as StringValue).value,
+    (context.arguments.getValue("copts") as ListValue).values.map { (it as StringValue).value },
+  )
 
-  fun buildBinary(
-    context: BuildContext
-  ): BuildRuleReturn {
-    TODO()
-  }
+  fun buildBinary(context: BuildContext): BuildRuleReturn = buildBinaryImpl(
+    context,
+    (context.arguments.getValue("srcs") as SetValue).values.map { (it as FileValue).file },
+    (context.arguments.getValue("hdrs") as ListValue).values.map { hdrValueFrom(it) },
+    (context.arguments.getValue("deps") as ListValue).values.map { Library.fromBibix(it) },
+    context.getNullableStringArg("outname") ?: "a.out",
+    (context.arguments.getValue("compilerCommand") as StringValue).value,
+    (context.arguments.getValue("copts") as ListValue).values.map { (it as StringValue).value },
+  )
 
   fun buildLibraryImpl(
     context: BuildContext,
@@ -63,9 +68,9 @@ class Compile {
     compilerCommand: String,
     copts: List<String>,
   ): BuildRuleReturn {
-//    if (!context.hashChanged && context.prevResult != null) {
-//      return BuildRuleReturn.value(context.prevResult!!)
-//    }
+    if (!context.hashChanged && context.prevResult != null) {
+      return BuildRuleReturn.value(context.prevResult!!)
+    }
 
     context.clearDestDirectory()
     // TODO outputName이 없으면 target 이름에서 유추
@@ -117,15 +122,41 @@ class Compile {
     srcs: List<Path>,
     hdrs: List<FilesWithRoot>,
     deps: List<Library>,
+    outname: String,
     compilerCommand: String,
+    copts: List<String>,
   ): BuildRuleReturn {
+    if (!context.hashChanged && context.prevResult != null) {
+      return BuildRuleReturn.value(context.prevResult!!)
+    }
+
     context.clearDestDirectory()
-    // TODO outputName이 없으면 target 이름에서 유추
-    val destPath = context.destDirectory.resolve("a.out").absolute()
-    val args = listOf(compilerCommand) +
-      srcs.map { it.absolutePathString() } +
-      listOf("-o", destPath.absolutePathString())
+
+    check(srcs.isNotEmpty()) { "srcs must not be empty for cc.binary" }
+    val argsBuilder = mutableListOf(compilerCommand)
+
+    val mergedHdrs = mergeHdrs(hdrs, deps)
+    if (mergedHdrs.isNotEmpty()) {
+      val preparedHdrs = prepareHdrs(mergedHdrs)
+      preparedHdrs.forEach { hdr ->
+        argsBuilder.add("-I${hdr.absolutePathString()}")
+      }
+    }
+    argsBuilder.addAll(copts)
+
+    argsBuilder.addAll(srcs.map { it.absolutePathString() })
+
+    val outpath = context.destDirectory.resolve(outname)
+    argsBuilder.add("-o")
+    argsBuilder.add(outpath.absolutePathString())
+
+    val args = argsBuilder.toList()
     runCompiler(context, args)
-    return BuildRuleReturn.value(Binary(destPath, srcs, deps).toBibix())
+
+    outpath.setPosixFilePermissions(setOf(PosixFilePermission.OWNER_EXECUTE))
+
+    // TODO deps에서 deps.filter { it.objType == ObjType.SharedObj } 를 추려서 Binary 객체에 넘겨주기
+
+    return BuildRuleReturn.value(Binary(outpath, srcs, listOf()).toBibix())
   }
 }

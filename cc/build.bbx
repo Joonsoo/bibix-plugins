@@ -2,6 +2,9 @@ package com.giyeok.bibix.plugins.cc
 
 from bibix.plugins import ktjvm
 
+var hdrsRoot: directory = "."
+var copts: list<string> = []
+
 enum ObjType {
   StaticObj, SharedObj
 }
@@ -18,11 +21,12 @@ class FilesWithRoot(root: path, files: set<file>)
 
 def library(
   srcs: set<file>,
-  hdrs: list<{file, FilesWithRoot}> = [],
+  hdrs: list<file | FilesWithRoot> = [],
   deps: list<Library> = [],
+  hdrsRoot: directory = hdrsRoot,
   compilerCommand: string = "g++",
   pwd: path = ".",
-  copts: list<string> = [],
+  copts: list<string> = copts,
 ): Library = impl:com.giyeok.bibix.plugins.cc.Compile:buildLibrary
 
 class Binary(
@@ -33,11 +37,13 @@ class Binary(
 
 def binary(
   srcs: set<file>,
-  hdrs: list<{file, FilesWithRoot}> = [],
+  hdrs: list<file | FilesWithRoot> = [],
   deps: list<Library> = [],
+  hdrsRoot: directory = hdrsRoot,
+  outname?: string,
   compilerCommand: string = "g++",
   pwd: path = ".",
-  copts: list<string> = [],
+  copts: list<string> = copts,
 ): Binary = impl:com.giyeok.bibix.plugins.cc.Compile:buildBinary
 
 implTmpl = bibix.genRuleImplTemplateKt(
@@ -46,257 +52,26 @@ implTmpl = bibix.genRuleImplTemplateKt(
   implInterfaceName = "com.giyeok.bibix.plugins.cc.CompileInterface",
 )
 
-implTypes = bibix.genTypesKt(
-  types = [Library, Binary, FilesWithRoot],
-  packageName = "com.giyeok.bibix.plugins.cc",
+implTypes = ktjvm.library(
+  srcs = [bibix.genTypesKt(
+    types = [Library, Binary, FilesWithRoot],
+    packageName = "com.giyeok.bibix.plugins.cc",
+  )],
+  deps = [bibix.base],
 )
 
 impl = ktjvm.library(
-  srcs = glob("src/**.kt") + [implTypes], // (implTmpl as list<file>)
-  deps = [bibix.base],
+  srcs = glob("src/**.kt"),
+  deps = [bibix.base, implTypes],
 )
 
 test {
   helloworld = binary(
     srcs = ["test/hello.c"],
+    deps = [],
   )
 
-  // TODO: abslcpp @ test/abseil-cpp {
+  // TODO: abslcpp @ test/abseil-cpp { .. }
   //       -> 이 namespace 안에선 base directory가 바뀌도록
   // TODO: abslcpp { import * from "test/abseil-cpp" }
-  abslcpp {
-    base {
-      config = library(
-        srcs = [],
-        hdrs = [
-          FilesWithRoot("test/abseil-cpp", [
-            "test/abseil-cpp/absl/base/config.h",
-            "test/abseil-cpp/absl/base/options.h",
-            "test/abseil-cpp/absl/base/policy_checks.h",
-          ]),
-        ]
-      )
-
-      coreHeaders = library(
-        srcs = [],
-        hdrs = [
-          FilesWithRoot("test/abseil-cpp", [
-            "test/abseil-cpp/absl/base/attributes.h",
-            "test/abseil-cpp/absl/base/const_init.h",
-            "test/abseil-cpp/absl/base/macros.h",
-            "test/abseil-cpp/absl/base/optimization.h",
-            "test/abseil-cpp/absl/base/port.h",
-            "test/abseil-cpp/absl/base/thread_annotations.h",
-          ]),
-        ],
-        deps = [config]
-      )
-
-      typeTraits = library(
-        srcs = [],
-        hdrs = [
-          FilesWithRoot("test/abseil-cpp", [
-            "test/abseil-cpp/absl/meta/type_traits.h",
-          ]),
-        ],
-        deps = [config, coreHeaders],
-      )
-
-      baseInternal = library(
-        srcs = [],
-        hdrs = [
-          FilesWithRoot("test/abseil-cpp", [
-            "test/abseil-cpp/absl/base/internal/hide_ptr.h",
-            "test/abseil-cpp/absl/base/internal/identity.h",
-            "test/abseil-cpp/absl/base/internal/inline_variable.h",
-            "test/abseil-cpp/absl/base/internal/invoke.h",
-            "test/abseil-cpp/absl/base/internal/scheduling_mode.h",
-          ]),
-        ],
-        deps = [config, typeTraits]
-      )
-
-      base = library(
-        srcs = [
-          "test/abseil-cpp/absl/base/internal/cycleclock.cc",
-          "test/abseil-cpp/absl/base/internal/spinlock.cc",
-          "test/abseil-cpp/absl/base/internal/sysinfo.cc",
-          "test/abseil-cpp/absl/base/internal/thread_identity.cc",
-          "test/abseil-cpp/absl/base/internal/unscaledcycleclock.cc",
-        ],
-        hdrs = [
-          FilesWithRoot("test/abseil-cpp", [
-            "test/abseil-cpp/absl/base/call_once.h",
-            "test/abseil-cpp/absl/base/casts.h",
-            "test/abseil-cpp/absl/base/internal/cycleclock.h",
-            "test/abseil-cpp/absl/base/internal/low_level_scheduling.h",
-            "test/abseil-cpp/absl/base/internal/per_thread_tls.h",
-            "test/abseil-cpp/absl/base/internal/spinlock.h",
-            "test/abseil-cpp/absl/base/internal/sysinfo.h",
-            "test/abseil-cpp/absl/base/internal/thread_identity.h",
-            "test/abseil-cpp/absl/base/internal/tsan_mutex_interface.h",
-            "test/abseil-cpp/absl/base/internal/unscaledcycleclock.h",
-          ]),
-        ],
-        copts = ["-std=c++14"],
-        deps = [
-          atomicHook,
-          baseInternal,
-          config,
-          coreHeaders,
-          cycleclockInternal,
-          dynamicAnnotations,
-          logSeverity,
-          rawLoggingInternal,
-          spinlockWait,
-          typeTraits,
-        ],
-      )
-
-      logSeverity = library(
-        srcs = [
-          "test/abseil-cpp/absl/base/log_severity.cc",
-        ],
-        hdrs = [
-          FilesWithRoot("test/abseil-cpp", [
-            "test/abseil-cpp/absl/base/log_severity.h",
-          ]),
-        ],
-        deps = [config, coreHeaders],
-        pwd = "test/abseil-cpp",
-        copts = ["-std=c++14"],
-      )
-
-      noDestructor = library(
-        srcs = [],
-        hdrs = [
-          FilesWithRoot("test/abseil-cpp", [
-            "test/abseil-cpp/absl/base/no_destructor.h",
-          ])
-        ],
-        deps = [config]
-      )
-
-      nullability = library(
-        srcs = [
-          "test/abseil-cpp/absl/base/internal/nullability_impl.h",
-        ],
-        hdrs = [
-          FilesWithRoot("test/abseil-cpp", [
-            "test/abseil-cpp/absl/base/internal/nullability.h",
-          ])
-        ],
-        deps = [config, typeTraits],
-        pwd = "test/abseil-cpp",
-        copts = ["-std=c++14"],
-      )
-
-      rawLoggingInternal = library(
-        srcs = [
-          "test/abseil-cpp/absl/base/internal/raw_logging.cc",
-        ],
-        hdrs = [
-          FilesWithRoot("test/abseil-cpp", [
-            "test/abseil-cpp/absl/base/internal/raw_logging.h",
-          ])
-        ],
-        deps = [atomicHook, config, coreHeaders, errnoSaver, logSeverity],
-        pwd = "test/abseil-cpp",
-        copts = ["-std=c++14"],
-      )
-
-      spinlockWait = library(
-        srcs = [
-          "test/abseil-cpp/absl/base/internal/spinlock_akaros.inc",
-          "test/abseil-cpp/absl/base/internal/spinlock_linux.inc",
-          "test/abseil-cpp/absl/base/internal/spinlock_posix.inc",
-          "test/abseil-cpp/absl/base/internal/spinlock_wait.cc",
-          "test/abseil-cpp/absl/base/internal/spinlock_win32.inc",
-        ],
-        hdrs = [
-          FilesWithRoot("test/abseil-cpp", [
-            "test/abseil-cpp/absl/base/internal/spinlock_wait.h",
-          ])
-        ],
-        deps = [baseInternal, coreHeaders, errnoSaver],
-        pwd = "test/abseil-cpp",
-        copts = ["-std=c++14"],
-      )
-
-      cycleclockInternal = library(
-        srcs = [],
-        hdrs = [
-          FilesWithRoot("test/abseil-cpp", [
-            "test/abseil-cpp/absl/base/internal/cycleclock_config.h",
-            "test/abseil-cpp/absl/base/internal/unscaledcycleclock_config.h",
-          ])
-        ],
-        deps = [baseInternal, config],
-        pwd = "test/abseil-cpp",
-        copts = ["-std=c++14"],
-      )
-
-      dynamicAnnotations = library(
-        srcs = [
-          "test/abseil-cpp/absl/base/internal/dynamic_annotations.h",
-        ],
-        hdrs = [
-          FilesWithRoot("test/abseil-cpp", [
-            "test/abseil-cpp/absl/base/dynamic_annotations.h",
-          ]),
-        ],
-        pwd = "test/abseil-cpp",
-        copts = ["-std=c++14"],
-      )
-
-      mallocInternal = library(
-        srcs = [
-          "test/abseil-cpp/absl/base/internal/low_level_alloc.cc",
-        ],
-        hdrs = [
-          FilesWithRoot("test/abseil-cpp", [
-            "test/abseil-cpp/absl/base/internal/direct_mmap.h",
-            "test/abseil-cpp/absl/base/internal/low_level_alloc.h",
-          ]),
-        ],
-        deps = [base, baseInternal, config, coreHeaders, dynamicAnnotations, rawLoggingInternal],
-        pwd = "test/abseil-cpp",
-        copts = ["-std=c++14"],
-      )
-
-      atomicHook = library(
-        srcs = [],
-        hdrs = [
-          FilesWithRoot("test/abseil-cpp", [
-            "test/abseil-cpp/absl/base/internal/atomic_hook.h",
-          ]),
-        ],
-        deps = [config, coreHeaders]
-      )
-
-      errnoSaver = library(
-        srcs = [],
-        hdrs = [
-          FilesWithRoot("test/abseil-cpp", [
-            "test/abseil-cpp/absl/base/internal/errno_saver.h",
-          ]),
-        ],
-        deps = [config]
-      )
-
-      strerror = library(
-        srcs = [
-          "test/abseil-cpp/absl/base/internal/strerror.cc",
-        ],
-        hdrs = [
-          FilesWithRoot("test/abseil-cpp", [
-            "test/abseil-cpp/absl/base/internal/strerror.h",
-          ]),
-        ],
-        deps = [config, coreHeaders, errnoSaver],
-        pwd = "test/abseil-cpp",
-        copts = ["-std=c++14"],
-      )
-    }
-  }
 }
