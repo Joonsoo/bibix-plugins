@@ -3,9 +3,10 @@ package com.giyeok.bibix.plugins.cc
 import com.giyeok.bibix.base.*
 import java.nio.file.Path
 import java.nio.file.attribute.PosixFilePermission
-import java.nio.file.attribute.PosixFilePermissions
 import kotlin.io.path.absolute
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.getPosixFilePermissions
+import kotlin.io.path.isExecutable
 import kotlin.io.path.name
 import kotlin.io.path.setPosixFilePermissions
 
@@ -34,9 +35,9 @@ class Compile {
     return hdrDirs.distinct()
   }
 
-  fun hdrValueFrom(value: BibixValue): FilesWithRoot =
+  fun hdrValueFrom(context: BuildContext, value: BibixValue): FilesWithRoot =
     when (value) {
-      is FileValue -> FilesWithRoot(value.file.parent, listOf(value.file))
+      is FileValue -> FilesWithRoot(context.mainBaseDirectory, listOf(value.file))
       is ClassInstanceValue -> FilesWithRoot.fromBibix(value)
       else -> throw IllegalStateException()
     }
@@ -44,7 +45,7 @@ class Compile {
   fun buildLibrary(context: BuildContext): BuildRuleReturn = buildLibraryImpl(
     context,
     (context.arguments.getValue("srcs") as SetValue).values.map { (it as FileValue).file },
-    (context.arguments.getValue("hdrs") as ListValue).values.map { hdrValueFrom(it) },
+    (context.arguments.getValue("hdrs") as ListValue).values.map { hdrValueFrom(context, it) },
     (context.arguments.getValue("deps") as ListValue).values.map { Library.fromBibix(it) },
     (context.arguments.getValue("compilerCommand") as StringValue).value,
     (context.arguments.getValue("copts") as ListValue).values.map { (it as StringValue).value },
@@ -53,7 +54,7 @@ class Compile {
   fun buildBinary(context: BuildContext): BuildRuleReturn = buildBinaryImpl(
     context,
     (context.arguments.getValue("srcs") as SetValue).values.map { (it as FileValue).file },
-    (context.arguments.getValue("hdrs") as ListValue).values.map { hdrValueFrom(it) },
+    (context.arguments.getValue("hdrs") as ListValue).values.map { hdrValueFrom(context, it) },
     (context.arguments.getValue("deps") as ListValue).values.map { Library.fromBibix(it) },
     context.getNullableStringArg("outname") ?: "a.out",
     (context.arguments.getValue("compilerCommand") as StringValue).value,
@@ -153,7 +154,9 @@ class Compile {
     val args = argsBuilder.toList()
     runCompiler(context, args)
 
-    outpath.setPosixFilePermissions(setOf(PosixFilePermission.OWNER_EXECUTE))
+    if (!outpath.isExecutable()) {
+      outpath.setPosixFilePermissions(outpath.getPosixFilePermissions() + PosixFilePermission.OWNER_EXECUTE)
+    }
 
     // TODO deps에서 deps.filter { it.objType == ObjType.SharedObj } 를 추려서 Binary 객체에 넘겨주기
 

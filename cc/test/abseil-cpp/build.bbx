@@ -1,5 +1,6 @@
-from bibix.plugins import cc
+from "../../.." import cc
 
+var hdrsRoot = "."
 var cc.copts = ["-std=c++14"]
 
 base {
@@ -87,7 +88,6 @@ base {
       "absl/base/log_severity.h",
     ],
     deps = [config, coreHeaders],
-    pwd = "test/abseil-cpp",
   )
 
   noDestructor = cc.library(
@@ -106,7 +106,6 @@ base {
       "absl/base/internal/nullability.h",
     ],
     deps = [config, typeTraits],
-    pwd = "test/abseil-cpp",
   )
 
   rawLoggingInternal = cc.library(
@@ -117,7 +116,6 @@ base {
       "absl/base/internal/raw_logging.h",
     ],
     deps = [atomicHook, config, coreHeaders, errnoSaver, logSeverity],
-    pwd = "test/abseil-cpp",
   )
 
   spinlockWait = cc.library(
@@ -132,7 +130,6 @@ base {
       "absl/base/internal/spinlock_wait.h",
     ],
     deps = [baseInternal, coreHeaders, errnoSaver],
-    pwd = "test/abseil-cpp",
   )
 
   cycleclockInternal = cc.library(
@@ -142,7 +139,6 @@ base {
       "absl/base/internal/unscaledcycleclock_config.h",
     ],
     deps = [baseInternal, config],
-    pwd = "test/abseil-cpp",
   )
 
   dynamicAnnotations = cc.library(
@@ -152,7 +148,7 @@ base {
     hdrs = [
       "absl/base/dynamic_annotations.h",
     ],
-    pwd = "test/abseil-cpp",
+    deps = [config, coreHeaders],
   )
 
   mallocInternal = cc.library(
@@ -164,7 +160,6 @@ base {
       "absl/base/internal/low_level_alloc.h",
     ],
     deps = [base, baseInternal, config, coreHeaders, dynamicAnnotations, rawLoggingInternal],
-    pwd = "test/abseil-cpp",
   )
 
   atomicHook = cc.library(
@@ -191,7 +186,6 @@ base {
       "absl/base/internal/strerror.h",
     ],
     deps = [config, coreHeaders, errnoSaver],
-    pwd = "test/abseil-cpp",
   )
 
   throwDelegate = cc.library(

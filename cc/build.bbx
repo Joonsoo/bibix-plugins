@@ -2,8 +2,8 @@ package com.giyeok.bibix.plugins.cc
 
 from bibix.plugins import ktjvm
 
-var hdrsRoot: directory = "."
 var copts: list<string> = []
+var pwd: path = "."
 
 enum ObjType {
   StaticObj, SharedObj
@@ -23,9 +23,8 @@ def library(
   srcs: set<file>,
   hdrs: list<file | FilesWithRoot> = [],
   deps: list<Library> = [],
-  hdrsRoot: directory = hdrsRoot,
   compilerCommand: string = "g++",
-  pwd: path = ".",
+  pwd: path = pwd,
   copts: list<string> = copts,
 ): Library = impl:com.giyeok.bibix.plugins.cc.Compile:buildLibrary
 
@@ -39,10 +38,9 @@ def binary(
   srcs: set<file>,
   hdrs: list<file | FilesWithRoot> = [],
   deps: list<Library> = [],
-  hdrsRoot: directory = hdrsRoot,
   outname?: string,
   compilerCommand: string = "g++",
-  pwd: path = ".",
+  pwd: path = pwd,
   copts: list<string> = copts,
 ): Binary = impl:com.giyeok.bibix.plugins.cc.Compile:buildBinary
 
