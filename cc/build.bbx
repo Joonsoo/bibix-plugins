@@ -63,10 +63,12 @@ impl = ktjvm.library(
   deps = [bibix.base, implTypes],
 )
 
+import "test/abseil-cpp" as abseilcpp
+
 test {
   helloworld = binary(
     srcs = ["test/hello.c"],
-    deps = [],
+    deps = [abseilcpp.strings.strings],
   )
 
   // TODO: abslcpp @ test/abseil-cpp { .. }
