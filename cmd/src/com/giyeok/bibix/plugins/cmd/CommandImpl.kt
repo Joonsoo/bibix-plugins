@@ -3,7 +3,24 @@ package com.giyeok.bibix.plugins.cmd
 import com.giyeok.bibix.base.BuildContext
 import com.giyeok.bibix.base.BuildRuleReturn
 import com.giyeok.bibix.base.FileValue
+import com.giyeok.bibix.base.ProgressLogger
 import java.nio.file.Path
+
+fun Process.writeProcessOutputsTo(logger: ProgressLogger) {
+  this.inputStream.bufferedReader().forEachLine { line ->
+    val trimeed = line.trim()
+    if (trimeed.isNotEmpty()) {
+      logger.logInfo(trimeed)
+    }
+  }
+
+  this.errorStream.bufferedReader().forEachLine { line ->
+    val trimeed = line.trim()
+    if (trimeed.isNotEmpty()) {
+      logger.logInfo(trimeed)
+    }
+  }
+}
 
 class CommandImpl: CommandInterface {
   private fun executeCommand(context: BuildContext, command: String, pwd: Path?) {
@@ -16,15 +33,7 @@ class CommandImpl: CommandInterface {
     }
     val process = processBuilder.start()
 
-    val stdout = String(process.inputStream.readAllBytes())
-    if (stdout.isNotEmpty()) {
-      context.progressLogger.logInfo(stdout)
-    }
-
-    val errorMessage = String(process.errorStream.readAllBytes())
-    if (errorMessage.isNotEmpty()) {
-      context.progressLogger.logError(errorMessage)
-    }
+    process.writeProcessOutputsTo(context.progressLogger)
 
     process.waitFor()
 
