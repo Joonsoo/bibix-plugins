@@ -1,0 +1,75 @@
+package com.giyeok.bibix.plugins.cmd
+
+import bibix
+from ".." import ktjvm
+import maven
+
+implTypesSrc = bibix.genTypesKt(
+  types = [CommandPrerequisite, CommandForFile],
+  packageName = "com.giyeok.bibix.plugins.cmd",
+)
+
+implTypes = ktjvm.library(
+  srcs = [implTypesSrc],
+  deps = [bibix.base],
+)
+
+implTmplSrc = bibix.genRuleImplTemplateKt(
+  rules = [command, execute],
+  implName = "com.giyeok.bibix.plugins.cmd.CommandImpl",
+  implInterfaceName = "com.giyeok.bibix.plugins.cmd.CommandInterface",
+)
+
+implTmpl = ktjvm.library(
+  srcs = [implTmplSrc.interfaceClass],
+  deps = [bibix.base, implTypes],
+)
+
+impl_ = ktjvm.library(
+  srcs = glob("src/**/*.kt"),
+  deps = [
+    bibix.base,
+    implTypes,
+    implTmpl,
+  ],
+)
+
+impl = ktjvm.library(
+  srcs = [implTmplSrc.implClass],
+  deps = [impl_],
+)
+
+class CommandPrerequisite(
+  prerequisites: list<CommandPrerequisite>,
+  command: string,
+  pwd: path,
+)
+
+class CommandForFile(
+  prerequisites: list<CommandPrerequisite>,
+  command: string,
+  pwd: path,
+  output?: file,
+)
+
+def command(
+  command: string,
+  pwd: path = ".",
+  prerequisites: list<CommandPrerequisite> = [],
+): CommandPrerequisite = impl:com.giyeok.bibix.plugins.cmd.Command:command
+
+def execute(
+  command: string,
+  output: path,
+  pwd: path = ".",
+  prerequisites: list<CommandPrerequisite> = [],
+): file = impl:com.giyeok.bibix.plugins.cmd.Command:execute
+
+
+test = execute(
+  prerequisites = [
+    command("echo hello")
+  ],
+  command = "echo hello",
+  output = "build.bbx",
+)
