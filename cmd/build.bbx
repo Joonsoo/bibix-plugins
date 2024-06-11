@@ -59,7 +59,8 @@ def command(
 ): CommandPrerequisite = impl:com.giyeok.bibix.plugins.cmd.Command:command
 
 def execute(
-  command: string,
+  // command가 지정되지 않으면 prerequisites 실행 후 바로 결과 반환
+  command?: string,
   output: path,
   pwd: path = ".",
   prerequisites: list<CommandPrerequisite> = [],

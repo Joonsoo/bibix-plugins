@@ -46,13 +46,15 @@ class CommandImpl: CommandInterface {
 
   override fun execute(
     context: BuildContext,
-    command: String,
+    command: String?,
     output: Path,
     pwd: Path,
     prerequisites: List<CommandPrerequisite>
   ): BuildRuleReturn {
     resolvePrerequisites(context, prerequisites)
-    executeCommand(context, command, pwd)
+    if (command != null) {
+      executeCommand(context, command, pwd)
+    }
     return BuildRuleReturn.value(FileValue(output))
   }
 }
