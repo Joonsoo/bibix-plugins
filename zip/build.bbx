@@ -3,7 +3,7 @@ from ".." import ktjvm
 import maven
 
 impl = ktjvm.library(
-  srcs = glob("src/**/*.kt"),
+  srcs = glob("src/**.kt"),
   deps = [
     bibix.base,
   ],
@@ -17,3 +17,12 @@ def gzip(
   file: file,
   outputFileName?: string,
 ): file = impl:com.giyeok.bibix.plugins.zip.Gzip
+
+def zip(
+  files: set<file>,
+  baseDir?: directory,
+  outputFileName?: string,
+): file = impl:com.giyeok.bibix.plugins.zip.Zip
+
+
+test = zip(["build.bbx", ...glob("src/**.kt")])
