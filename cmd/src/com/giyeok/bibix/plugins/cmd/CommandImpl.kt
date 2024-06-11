@@ -33,6 +33,8 @@ class CommandImpl: CommandInterface {
     }
     val process = processBuilder.start()
 
+    context.progressLogger.logInfo("Running: $tokens")
+
     process.writeProcessOutputsTo(context.progressLogger)
 
     process.waitFor()
