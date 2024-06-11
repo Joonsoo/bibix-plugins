@@ -14,6 +14,7 @@ import java.util.zip.ZipOutputStream
 import kotlin.io.path.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.isRegularFile
 import kotlin.io.path.name
 import kotlin.io.path.outputStream
 import kotlin.io.path.pathString
@@ -40,9 +41,11 @@ class Zip {
     if (context.hashChanged) {
       ZipOutputStream(outputFile.outputStream().buffered()).use { zos ->
         for (file in files) {
-          val path = file.absolute().relativeTo(baseDir)
-          zos.putNextEntry(ZipEntry(path.pathString))
-          Files.copy(file, zos)
+          if (file.isRegularFile()) {
+            val path = file.absolute().relativeTo(baseDir)
+            zos.putNextEntry(ZipEntry(path.pathString))
+            Files.copy(file, zos)
+          }
         }
       }
     }
