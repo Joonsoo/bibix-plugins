@@ -8,16 +8,18 @@ import java.nio.file.Path
 
 fun Process.writeProcessOutputsTo(logger: ProgressLogger) {
   this.inputStream.bufferedReader().forEachLine { line ->
-    val trimeed = line.trim()
-    if (trimeed.isNotEmpty()) {
-      logger.logInfo(trimeed)
+    val trimmed = line.trim()
+    if (trimmed.isNotEmpty()) {
+      println(trimmed)
+      logger.logInfo(trimmed)
     }
   }
 
   this.errorStream.bufferedReader().forEachLine { line ->
-    val trimeed = line.trim()
-    if (trimeed.isNotEmpty()) {
-      logger.logInfo(trimeed)
+    val trimmed = line.trim()
+    if (trimmed.isNotEmpty()) {
+      println(trimmed)
+      logger.logInfo(trimmed)
     }
   }
 }
