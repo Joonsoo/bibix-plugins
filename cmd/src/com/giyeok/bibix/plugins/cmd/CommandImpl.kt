@@ -6,10 +6,15 @@ import com.giyeok.bibix.base.FileValue
 import java.nio.file.Path
 
 class CommandImpl: CommandInterface {
-  private fun executeCommand(context: BuildContext, command: String, pwd: Path) {
+  private fun executeCommand(context: BuildContext, command: String, pwd: Path?) {
     // TODO command 제대로 파싱하기
     val tokens = command.split(' ')
-    val process = ProcessBuilder(tokens).directory(pwd.toFile()).start()
+
+    val processBuilder = ProcessBuilder(tokens)
+    if (pwd != null) {
+      processBuilder.directory(pwd.toFile())
+    }
+    val process = processBuilder.start()
 
     val stdout = String(process.inputStream.readAllBytes())
     if (stdout.isNotEmpty()) {
@@ -39,7 +44,7 @@ class CommandImpl: CommandInterface {
   override fun command(
     context: BuildContext,
     command: String,
-    pwd: Path,
+    pwd: Path?,
     prerequisites: List<CommandPrerequisite>
   ): BuildRuleReturn =
     BuildRuleReturn.value(CommandPrerequisite(prerequisites, command, pwd).toBibix())
@@ -48,7 +53,7 @@ class CommandImpl: CommandInterface {
     context: BuildContext,
     command: String?,
     output: Path,
-    pwd: Path,
+    pwd: Path?,
     prerequisites: List<CommandPrerequisite>
   ): BuildRuleReturn {
     resolvePrerequisites(context, prerequisites)

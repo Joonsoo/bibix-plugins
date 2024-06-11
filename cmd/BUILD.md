@@ -4,5 +4,13 @@
 * 현재 빌드를 실행중인 시스템의 환경에 따라 동작이 달라지므로 완전히 non-portable 하다.
 
 
+* Example:
 ```
+jar = cmd.execute(
+  prerequisites = [
+    cmd.command("python scripts/mk_make.py --java"),
+    cmd.command("make", pwd="build"),
+  ],
+  output = "build.bbx",
+)
 ```
