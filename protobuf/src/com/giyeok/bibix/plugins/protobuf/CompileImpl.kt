@@ -77,7 +77,7 @@ class CompileImpl: CompileInterface {
     protocPath: Path,
     outputFileName: String?
   ): BuildRuleReturn {
-    val destFile = context.destDirectory
+    val destFile = context.destDirectory.resolve(outputFileName ?: "protoset.protoset")
 
     if (context.hashChanged) {
       context.clearDestDirectory()
