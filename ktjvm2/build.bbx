@@ -1,0 +1,28 @@
+import jvm
+import maven
+from ".." import java
+
+var compilerVersion: string = "2.1.20"
+var sdkVersion: string = "2.1.20"
+var outVersion: string = "21"
+
+impl = java.library(
+  srcs = glob("src/**/*.java"),
+  deps = [
+    bibix.base,
+    maven.artifact("org.jetbrains.kotlin", "kotlin-compiler", compilerVersion),
+  ],
+)
+
+ktjvmSdk = maven.artifact("org.jetbrains.kotlin", "kotlin-stdlib", sdkVersion)
+
+def library(
+  srcs: set<file>,
+  deps: set<jvm.ClassPkg> = [],
+  runtimeDeps: set<jvm.ClassPkg> = [],
+  resources: set<file> = [],
+  compilerVersion: string = compilerVersion,
+  sdk?: jvm.ClassPkg = ktjvmSdk,
+  outVersion: string = outVersion,
+  optIns?: list<string>,
+): jvm.ClassPkg = impl:com.giyeok.bibix.plugins.ktjvm.Library
