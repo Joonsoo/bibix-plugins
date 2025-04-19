@@ -1,8 +1,10 @@
 package com.giyeok.bibix.plugins.jar
 
 import com.giyeok.bibix.base.*
+import kotlinx.metadata.jvm.JvmMetadataVersion
 import kotlinx.metadata.jvm.KmModule
 import kotlinx.metadata.jvm.KotlinModuleMetadata
+import kotlinx.metadata.jvm.UnstableMetadataApi
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Files
@@ -95,6 +97,7 @@ class Jar2 {
     closeJarInputStreams()
   }
 
+  @OptIn(UnstableMetadataApi::class)
   private fun writeJarEntry(
     entryName: String,
     sources: List<Pair<Path, InputStream>>,
@@ -108,13 +111,20 @@ class Jar2 {
         println("kotlin_module: $entryName ${sources.map { it.first }}")
         val kmModules = sources.map { (path, inputStream) ->
           KotlinModuleMetadata.read(inputStream.readAllBytes())
-            ?: throw IllegalStateException("Not a .kotlin_module file: $entryName from ${path.absolutePathString()}")
-        }.map { it.toKmModule() }
+          // ?: throw IllegalStateException("Not a .kotlin_module file: $entryName from ${path.absolutePathString()}")
+        }.map { it.kmModule }
         val mergedModule = KmModule()
         kmModules.forEach { kmModule ->
-          mergedModule.apply(kmModule::accept)
+          mergedModule.optionalAnnotationClasses.addAll(kmModule.optionalAnnotationClasses)
+          mergedModule.packageParts.putAll(kmModule.packageParts)
+          // mergedModule.apply(kmModule::accept)
         }
-        outputStream.write(KotlinModuleMetadata.write(mergedModule).bytes)
+        outputStream.write(
+          KotlinModuleMetadata(
+            mergedModule,
+            JvmMetadataVersion.LATEST_STABLE_SUPPORTED
+          ).write()
+        )
       } else {
         println("Duplicate entry: $entryName, ${sources.map { it.first }}")
         val (_, inputStream) = sources.first()

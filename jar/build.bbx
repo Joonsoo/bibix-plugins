@@ -7,7 +7,7 @@ impl = ktjvm.library(
   srcs = [pluginBase.jvmTypes] + glob("src/**/*.kt"),
   deps = [
     bibix.base,
-    maven.artifact("org.jetbrains.kotlinx", "kotlinx-metadata-jvm", "0.6.0"),
+    maven.artifact("org.jetbrains.kotlinx", "kotlinx-metadata-jvm", "0.9.0"),
   ],
 )
 
@@ -26,3 +26,6 @@ def executableUberJar(
   mainClass: string,
   jarFileName: string = "bundle.jar",
 ): file = impl:com.giyeok.bibix.plugins.jar.Jar2:executableUberJar
+
+// test:
+// x = jar([impl])
