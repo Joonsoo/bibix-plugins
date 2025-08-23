@@ -1,10 +1,6 @@
 package com.giyeok.bibix.plugins.jar
 
 import com.giyeok.bibix.base.*
-import kotlinx.metadata.jvm.JvmMetadataVersion
-import kotlinx.metadata.jvm.KmModule
-import kotlinx.metadata.jvm.KotlinModuleMetadata
-import kotlinx.metadata.jvm.UnstableMetadataApi
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Files
@@ -13,6 +9,10 @@ import java.util.jar.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import kotlin.io.path.*
+import kotlin.metadata.jvm.JvmMetadataVersion
+import kotlin.metadata.jvm.KmModule
+import kotlin.metadata.jvm.KotlinModuleMetadata
+import kotlin.metadata.jvm.UnstableMetadataApi
 
 class Jar2 {
   private val entries = mutableMapOf<String, MutableList<Path>>()
@@ -76,11 +76,11 @@ class Jar2 {
     // 'META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'module-info.class'
     entries.keys.removeIf { entryName ->
       entryName.substringAfterLast('/') == "module-info.class" ||
-        entryName == "META-INF/MANIFEST.MF" || entryName == "META-INF/INDEX.LIST" ||
-        (entryName.startsWith("META-INF/") &&
-          (entryName.endsWith(".SF") ||
-            entryName.endsWith(".DSA") ||
-            entryName.endsWith(".RSA")))
+          entryName == "META-INF/MANIFEST.MF" || entryName == "META-INF/INDEX.LIST" ||
+          (entryName.startsWith("META-INF/") &&
+              (entryName.endsWith(".SF") ||
+                  entryName.endsWith(".DSA") ||
+                  entryName.endsWith(".RSA")))
     }
 
     JarOutputStream(destFile.outputStream().buffered(), manifest).use { jos ->

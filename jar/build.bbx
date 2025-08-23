@@ -1,4 +1,4 @@
-from ".." import ktjvm
+from ".." import ktjvm2 as ktjvm
 import "../pluginBase" as pluginBase
 import jvm
 import maven
@@ -7,7 +7,7 @@ impl = ktjvm.library(
   srcs = [pluginBase.jvmTypes] + glob("src/**/*.kt"),
   deps = [
     bibix.base,
-    maven.artifact("org.jetbrains.kotlinx", "kotlinx-metadata-jvm", "0.9.0"),
+    maven.artifact("org.jetbrains.kotlin", "kotlin-metadata-jvm", "2.2.10"),
   ],
 )
 
