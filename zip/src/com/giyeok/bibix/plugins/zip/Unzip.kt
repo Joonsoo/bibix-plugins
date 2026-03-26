@@ -15,6 +15,7 @@ class Unzip {
     val destDirectory = context.destDirectory
 
     if (context.hashChanged) {
+      val buffer = ByteArray(1000)
       ZipInputStream(zipFile.inputStream().buffered()).use { zis ->
         var entry = zis.nextEntry
         while (entry != null) {
@@ -29,7 +30,6 @@ class Unzip {
               directory.createDirectories()
             }
             entryPath.outputStream().buffered().use { output ->
-              val buffer = ByteArray(1000)
               var count: Int
               while (zis.read(buffer, 0, 1000).also { count = it } >= 0) {
                 output.write(buffer, 0, count)

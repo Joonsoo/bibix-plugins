@@ -1,8 +1,6 @@
 package com.giyeok.bibix.plugins.ktjvm;
 
 import com.giyeok.bibix.base.*;
-import org.jetbrains.kotlin.cli.common.ExitCode;
-import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -45,7 +43,7 @@ public class Library {
         return resDirs;
     }
 
-    private BibixValue runCompiler(SetValue classPaths, SetValue deps, SetValue runtimeDeps, BuildContext context, ListValue optIns) throws IOException {
+    private BibixValue runCompiler(Path compilerPath, SetValue classPaths, SetValue deps, SetValue runtimeDeps, BuildContext context, ListValue optIns) throws IOException {
         Path destDirectory = context.getDestDirectory();
 
         SetValue srcs = (SetValue) context.getArguments().get("srcs");
@@ -61,6 +59,7 @@ public class Library {
 
         if (context.getHashChanged()) {
             ArrayList<String> args = new ArrayList<>();
+            args.add(compilerPath.toString());
             if (!classPaths.getValues().isEmpty()) {
                 ArrayList<Path> cps = new ArrayList<>();
                 args.add("-cp");
@@ -93,12 +92,16 @@ public class Library {
 
             context.clearDestDirectory();
 
-            // System.out.println("** ktjvm args: " + args);
-            var compiler = new K2JVMCompiler();
-            ExitCode exitCode = compiler.exec(System.out, args.toArray(new String[0]));
-            // ExitCode exitCode = CLITool.doMainNoExit(new K2JVMCompiler(), args.toArray(new String[0]));
-            if (exitCode != ExitCode.OK) {
-                throw new IllegalStateException("Failed to compile kotlin sources");
+            ProcessBuilder processBuilder = new ProcessBuilder(args.toArray(new String[0]));
+            processBuilder.directory(destDirectory.toFile());
+            Process process = processBuilder.start();
+            try {
+                int exitCode = process.waitFor();
+                if (exitCode != 0) {
+                    throw new IllegalStateException("Failed to compile kotlin sources");
+                }
+            } catch (InterruptedException e) {
+                throw new IllegalStateException("Failed to compile kotlin sources", e);
             }
         }
 
@@ -128,6 +131,12 @@ public class Library {
         BibixValue optInsValue = (BibixValue) context.getArguments().get("optIns");
         ListValue optIns = (optInsValue instanceof NoneValue) ? null : (ListValue) optInsValue;
         BibixValue sdk = context.getNullableField("sdk");
+        DirectoryValue compilerPathValue = (DirectoryValue) context.getArguments().get("compilerPath");
+
+        Path compilerPath = compilerPathValue.getDirectory().toAbsolutePath().resolve("kotlinc").resolve("bin").resolve("kotlinc");
+        if (!Files.exists(compilerPath)) {
+            throw new IllegalStateException("Compiler path does not exist: " + compilerPath);
+        }
 
         List<BibixValue> newDeps = new ArrayList<>(deps.getValues());
         // Insert to the beginning of newDeps, instead of appending to the list
@@ -143,7 +152,7 @@ public class Library {
                 (classPaths) -> {
                     SetValue cps = (SetValue) ((ClassInstanceValue) classPaths).get("cps");
                     try {
-                        return BuildRuleReturn.value(runCompiler(cps, newDepsValue, runtimeDeps, context, optIns));
+                        return BuildRuleReturn.value(runCompiler(compilerPath, cps, newDepsValue, runtimeDeps, context, optIns));
                     } catch (Exception e) {
                         return BuildRuleReturn.failed(e);
                     }
