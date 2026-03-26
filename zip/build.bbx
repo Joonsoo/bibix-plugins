@@ -1,9 +1,9 @@
 import bibix
-from ".." import ktjvm
+from ".." import java
 import maven
 
-impl = ktjvm.library(
-  srcs = glob("src/**.kt"),
+impl = java.library(
+  srcs = glob("src/**.java"),
   deps = [
     bibix.base,
   ],
@@ -25,4 +25,4 @@ def zip(
 ): file = impl:com.giyeok.bibix.plugins.zip.Zip
 
 
-test = zip(["build.bbx", ...glob("src/**.kt")])
+test = zip(["build.bbx", ...glob("src/**.java")])
