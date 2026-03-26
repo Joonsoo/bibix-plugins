@@ -5,7 +5,7 @@ import com.giyeok.bibix.plugins.base.ClassPaths
 import com.giyeok.bibix.plugins.base.ClassPkg
 import com.giyeok.bibix.plugins.base.ClassesInfo
 import com.giyeok.bibix.plugins.base.LocalBuilt
-import scala.jdk.`CollectionConverters$`
+import scala.jdk.javaapi.CollectionConverters
 import scala.tools.nsc.Global
 import scala.tools.nsc.Settings
 import java.nio.file.Path
@@ -84,7 +84,7 @@ class Library {
 
       val global = Global(settings)
       val run = global.Run()
-      val srcScala = `CollectionConverters$`.`MODULE$`.ListHasAsScala(srcPaths).asScala().toList()
+      val srcScala = CollectionConverters.asScala(srcPaths).toList()
       run.compile(srcScala)
 
       // 컴파일 실패시 예외 발생
