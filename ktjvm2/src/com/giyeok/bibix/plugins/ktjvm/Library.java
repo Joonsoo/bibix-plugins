@@ -98,7 +98,8 @@ public class Library {
             try {
                 int exitCode = process.waitFor();
                 if (exitCode != 0) {
-                    throw new IllegalStateException("Failed to compile kotlin sources");
+                    String errorMessage = new String(process.getErrorStream().readAllBytes());
+                    throw new IllegalStateException("Failed to compile kotlin sources:\n" + errorMessage);
                 }
             } catch (InterruptedException e) {
                 throw new IllegalStateException("Failed to compile kotlin sources", e);
