@@ -137,6 +137,9 @@ public class Library {
         if (!Files.exists(compilerPath)) {
             throw new IllegalStateException("Compiler path does not exist: " + compilerPath);
         }
+        if (!Files.isExecutable(compilerPath)) {
+            compilerPath.toFile().setExecutable(true);
+        }
 
         List<BibixValue> newDeps = new ArrayList<>(deps.getValues());
         // Insert to the beginning of newDeps, instead of appending to the list
